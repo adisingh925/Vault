@@ -10,7 +10,8 @@ import app.android.adreal.vault.model.Item
 
 class DataAdapter(
     private val context: Context,
-    private val onItemClickListener: OnItemClickListener
+    private val onItemClickListener: OnItemClickListener,
+    private val onItemLongClickListener: OnItemLongClickListener
 ) : RecyclerView.Adapter<DataAdapter.MyViewHolder>() {
 
     private lateinit var binding: DataItemBinding
@@ -18,6 +19,10 @@ class DataAdapter(
 
     interface OnItemClickListener {
         fun onItemClick(index: Int)
+    }
+
+    interface OnItemLongClickListener {
+        fun onItemLongClick(primaryKey: Int, status: Boolean)
     }
 
     class MyViewHolder(binding: DataItemBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -45,6 +50,8 @@ class DataAdapter(
 
         holder.card.setOnLongClickListener {
             holder.card.isChecked = !holder.card.isChecked
+            Log.d("DataAdapter", "onBindViewHolder: ${position}")
+            onItemLongClickListener.onItemLongClick(itemList[position].id, holder.card.isChecked)
             true
         }
     }
@@ -60,6 +67,15 @@ class DataAdapter(
                     notifyItemChanged(itemData)
                 }
             }
+        }
+    }
+
+    fun deleteItem(primaryKey: Int) {
+        val position = itemList.indexOfFirst { it.id == primaryKey }
+        if (position != -1) {
+            itemList.removeAt(position)
+            notifyItemRemoved(position)
+            notifyItemRangeChanged(position, itemCount - position)
         }
     }
 }

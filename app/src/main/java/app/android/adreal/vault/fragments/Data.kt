@@ -10,14 +10,16 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import androidx.room.PrimaryKey
 import app.android.adreal.vault.MainActivity
 import app.android.adreal.vault.R
 import app.android.adreal.vault.adapter.DataAdapter
 import app.android.adreal.vault.databinding.FragmentDataBinding
 import app.android.adreal.vault.encryption.EncryptionHandler
+import app.android.adreal.vault.model.Item
 import app.android.adreal.vault.viewmodel.MainViewModel
 
-class Data : Fragment(), DataAdapter.OnItemClickListener {
+class Data : Fragment(), DataAdapter.OnItemClickListener, DataAdapter.OnItemLongClickListener {
 
     private val binding by lazy {
         FragmentDataBinding.inflate(layoutInflater)
@@ -28,18 +30,31 @@ class Data : Fragment(), DataAdapter.OnItemClickListener {
     }
 
     private val adapter by lazy {
-        DataAdapter(requireContext(), this)
+        DataAdapter(requireContext(), this, this)
     }
 
     private val recyclerView by lazy {
         binding.recyclerView
     }
 
+    private val longPressArray = ArrayList<Int>()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        binding.delete.visibility = View.GONE
+
         initRecyclerAdapter()
+
+        binding.delete.setOnClickListener {
+            for (i in longPressArray) {
+                adapter.deleteItem(i)
+                viewModel.delete(Item(i, "", ""))
+            }
+            binding.delete.visibility = View.GONE
+            longPressArray.clear()
+        }
 
         viewModel.decryptedNotes.observe(viewLifecycleOwner) {
             adapter.setData(it)
@@ -80,6 +95,20 @@ class Data : Fragment(), DataAdapter.OnItemClickListener {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+        }
+    }
+
+    override fun onItemLongClick(primaryKey: Int, status: Boolean) {
+        if (status) {
+            longPressArray.add(primaryKey)
+        } else {
+            longPressArray.remove(primaryKey)
+        }
+
+        if (longPressArray.isNotEmpty()) {
+            binding.delete.visibility = View.VISIBLE
+        } else {
+            binding.delete.visibility = View.GONE
         }
     }
 }
