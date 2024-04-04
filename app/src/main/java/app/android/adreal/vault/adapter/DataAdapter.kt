@@ -52,8 +52,17 @@ class DataAdapter(
     fun setData(data: List<Item>) {
         Log.d("DataAdapter", "setData: ${data.size} ${this.itemList.size}")
         if(data.size > this.itemList.size){
+            Log.d("DataAdapter", "Updating Data")
             this.itemList.add(data.last())
             notifyItemInserted(data.size - 1)
+        }else{
+            for (itemData in data.indices){
+                if(data[itemData] != this.itemList[itemData]){
+                    Log.d("DataAdapter", "Updating Data")
+                    this.itemList[itemData] = data[itemData]
+                    notifyItemChanged(itemData)
+                }
+            }
         }
     }
 }
