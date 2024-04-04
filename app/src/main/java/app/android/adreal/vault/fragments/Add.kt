@@ -13,7 +13,6 @@ import app.android.adreal.vault.encryption.EncryptionHandler
 import app.android.adreal.vault.model.Item
 import app.android.adreal.vault.viewmodel.MainViewModel
 
-
 class Add : Fragment() {
 
     private val binding by lazy {

@@ -85,7 +85,6 @@ class EncryptionHandler(private val context: Context) {
         return byteArray.joinToString("") { "%02x".format(it) }
     }
 
-
     companion object {
         private const val ALGORITHM = KeyProperties.KEY_ALGORITHM_AES
         private const val BLOCK_MODE = KeyProperties.BLOCK_MODE_CBC
