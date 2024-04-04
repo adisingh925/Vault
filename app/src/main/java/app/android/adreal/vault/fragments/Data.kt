@@ -27,10 +27,6 @@ class Data : Fragment(), DataAdapter.OnItemClickListener {
         ViewModelProvider(this)[MainViewModel::class.java]
     }
 
-    private val mainActivityRef by lazy {
-        activity as MainActivity
-    }
-
     private val adapter by lazy {
         DataAdapter(requireContext(), this)
     }
@@ -46,7 +42,7 @@ class Data : Fragment(), DataAdapter.OnItemClickListener {
 
         initRecyclerAdapter()
 
-        viewModel.notes.observe(viewLifecycleOwner) {
+        viewModel.decryptedNotes.observe(viewLifecycleOwner) {
             adapter.setData(it)
         }
 
@@ -68,28 +64,31 @@ class Data : Fragment(), DataAdapter.OnItemClickListener {
     private fun getBundle(id: Int, title: String, description: String): Bundle {
         val bundle = Bundle()
         bundle.putInt("id", id)
+
         bundle.putString(
             "title",
-            EncryptionHandler(requireContext()).decrypt(
-                EncryptionHandler(requireContext()).hexStringToByteArray(title)
-            ).decodeToString()
+            title
         )
+
         bundle.putString(
-            "description", EncryptionHandler(requireContext()).decrypt(
-                EncryptionHandler(requireContext()).hexStringToByteArray(description)
-            ).decodeToString()
+            "description",
+            description
         )
 
         return bundle
     }
 
     override fun onItemClick(index: Int) {
-        val data = viewModel.notes.value?.get(index)
+        val data = viewModel.decryptedNotes.value?.get(index)
         if (data != null) {
-            findNavController().navigate(
-                R.id.action_data_to_add2,
-                getBundle(data.id, data.title, data.description)
-            )
+            try {
+                findNavController().navigate(
+                    R.id.action_data_to_add2,
+                    getBundle(data.id, data.title, data.description)
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 }

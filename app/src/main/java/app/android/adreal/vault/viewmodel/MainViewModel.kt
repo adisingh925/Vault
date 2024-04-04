@@ -25,13 +25,31 @@ import kotlinx.coroutines.launch
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
-    val notes: LiveData<List<Item>>
-    val repository: Repository
+    private val repository: Repository
+
+    val decryptedNotes: LiveData<List<Item>>
+        get() = _decryptedNotes
+    private val _decryptedNotes = MutableLiveData<List<Item>>()
 
     init {
         val userDao = Database.getDatabase(application).dao()
         repository = Repository(userDao)
-        notes = repository.readData
+
+        repository.readData.observeForever { encryptedNotes ->
+            val decryptedList = mutableListOf<Item>()
+            encryptedNotes?.forEach { encryptedItem ->
+                val decryptedTitle = EncryptionHandler(application).decrypt(
+                    EncryptionHandler(application).hexStringToByteArray(encryptedItem.title)
+                ).decodeToString()
+
+                val decryptedDescription = EncryptionHandler(application).decrypt(
+                    EncryptionHandler(application).hexStringToByteArray(encryptedItem.description)
+                ).decodeToString()
+
+                decryptedList.add(Item(encryptedItem.id, decryptedTitle, decryptedDescription))
+            }
+            _decryptedNotes.postValue(decryptedList)
+        }
     }
 
     fun insert(data: Item) {
