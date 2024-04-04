@@ -16,7 +16,6 @@ import app.android.adreal.vault.databinding.FragmentDataBinding
 import app.android.adreal.vault.encryption.EncryptionHandler
 import app.android.adreal.vault.viewmodel.MainViewModel
 
-
 class Data : Fragment(), DataAdapter.OnItemClickListener {
 
     private val binding by lazy {
