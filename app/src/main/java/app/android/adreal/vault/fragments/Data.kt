@@ -85,15 +85,19 @@ class Data : Fragment(), DataAdapter.OnItemClickListener, DataAdapter.OnItemLong
     }
 
     override fun onItemClick(index: Int) {
-        val data = viewModel.decryptedNotes.value?.get(index)
-        if (data != null) {
-            try {
-                findNavController().navigate(
-                    R.id.action_data_to_add2,
-                    getBundle(data.id, data.title, data.description)
-                )
-            } catch (e: Exception) {
-                e.printStackTrace()
+        if(longPressArray.isNotEmpty()){
+
+        }else{
+            val data = viewModel.decryptedNotes.value?.get(index)
+            if (data != null) {
+                try {
+                    findNavController().navigate(
+                        R.id.action_data_to_add2,
+                        getBundle(data.id, data.title, data.description)
+                    )
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         }
     }

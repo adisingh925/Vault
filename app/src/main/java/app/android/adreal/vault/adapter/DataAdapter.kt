@@ -50,7 +50,7 @@ class DataAdapter(
 
         holder.card.setOnLongClickListener {
             holder.card.isChecked = !holder.card.isChecked
-            Log.d("DataAdapter", "onBindViewHolder: ${position}")
+            Log.d("DataAdapter", "onBindViewHolder: $position")
             onItemLongClickListener.onItemLongClick(itemList[position].id, holder.card.isChecked)
             true
         }
