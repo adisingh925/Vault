@@ -14,7 +14,7 @@ class DataAdapter(
 ) : RecyclerView.Adapter<DataAdapter.MyViewHolder>() {
 
     private lateinit var binding: DataItemBinding
-    private var itemList = emptyList<Item>()
+    private var itemList = ArrayList<Item>()
 
     interface OnItemClickListener {
         fun onItemClick(index: Int)
@@ -50,7 +50,10 @@ class DataAdapter(
     }
 
     fun setData(data: List<Item>) {
-        this.itemList = data
-        notifyDataSetChanged()
+        Log.d("DataAdapter", "setData: ${data.size} ${this.itemList.size}")
+        if(data.size > this.itemList.size){
+            this.itemList.add(data.last())
+            notifyItemInserted(data.size - 1)
+        }
     }
 }
