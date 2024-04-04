@@ -8,6 +8,7 @@ import app.android.adreal.vault.encryption.EncryptionHandler
 import app.android.adreal.vault.sharedpreferences.SharedPreferences
 import app.android.adreal.vault.utils.Constants
 import com.google.android.material.snackbar.Snackbar
+import com.onesignal.OneSignal
 import java.util.UUID
 
 class MainActivity : AppCompatActivity() {
@@ -21,13 +22,21 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         SharedPreferences.init(this)
 
-        val encryptedData = EncryptionHandler(this).encrypt("hello there".encodeToByteArray()).joinToString("") { "%02x".format(it) }
-        val encr = EncryptionHandler(this).hexStringToByteArray(encryptedData)
+        if (SharedPreferences.read(Constants.USER_ID, "").toString().isEmpty()) {
+            val uuid = UUID.randomUUID().toString()
+            Log.d("MainActivity", "UUID: $uuid")
+            SharedPreferences.write(Constants.USER_ID, uuid)
 
-        val decryptedData =
-            EncryptionHandler(this).decrypt(encr)
-
-        Log.d("Decrypted Data", decryptedData.decodeToString())
+            OneSignal.User.addTag(
+                Constants.USER_ID,
+                uuid
+            )
+        } else {
+            Log.d(
+                "MainActivity",
+                "UUID: Already Exists! -> ${SharedPreferences.read(Constants.USER_ID, "")}"
+            )
+        }
     }
 
     fun showSnackbar(message: String) {
