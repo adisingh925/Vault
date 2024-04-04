@@ -63,16 +63,8 @@ class Data : Fragment(), DataAdapter.OnItemClickListener {
     private fun getBundle(id: Int, title: String, description: String): Bundle {
         val bundle = Bundle()
         bundle.putInt("id", id)
-
-        bundle.putString(
-            "title",
-            title
-        )
-
-        bundle.putString(
-            "description",
-            description
-        )
+        bundle.putString("title", title)
+        bundle.putString("description", description)
 
         return bundle
     }
