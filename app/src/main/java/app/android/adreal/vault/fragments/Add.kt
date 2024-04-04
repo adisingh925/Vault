@@ -13,6 +13,7 @@ import app.android.adreal.vault.encryption.EncryptionHandler
 import app.android.adreal.vault.model.Item
 import app.android.adreal.vault.viewmodel.MainViewModel
 
+
 class Add : Fragment() {
 
     private val binding by lazy {
@@ -27,7 +28,7 @@ class Add : Fragment() {
         activity as MainActivity
     }
 
-    private var noteId = -1
+    var noteId = -1
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
