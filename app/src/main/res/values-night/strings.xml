@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="signup">Signup</string>
+    <string name="register">Register</string>
+    <string name="retype_password">Retype Password</string>
+    <string name="add_secret">Add Secret</string>
+    <string name="title">Title...</string>
+    <string name="start_typing">Start Typing...</string>
+    <string name="your_notes">Your Notes</string>
+</resources>
