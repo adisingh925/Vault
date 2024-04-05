@@ -47,7 +47,6 @@ class MainActivity : AppCompatActivity() {
         SharedPreferences.init(this)
         initDialog()
 
-
         if (SharedPreferences.read(Constants.USER_ID, "").toString().isEmpty()) {
             val androidId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID)
             Log.d("MainActivity", "UUID: $androidId")
