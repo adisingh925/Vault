@@ -11,6 +11,7 @@ import app.android.adreal.vault.MainActivity
 import app.android.adreal.vault.databinding.FragmentAddBinding
 import app.android.adreal.vault.encryption.EncryptionHandler
 import app.android.adreal.vault.model.Item
+import app.android.adreal.vault.utils.GlobalFunctions
 import app.android.adreal.vault.viewmodel.MainViewModel
 
 class Add : Fragment() {
@@ -62,7 +63,7 @@ class Add : Fragment() {
                 if (noteId == -1) {
                     viewModel.insert(
                         Item(
-                            0,
+                            GlobalFunctions().getNextPrimaryKey(),
                             EncryptionHandler(requireContext()).byteArrayToHexString(
                                 EncryptionHandler(
                                     requireContext()

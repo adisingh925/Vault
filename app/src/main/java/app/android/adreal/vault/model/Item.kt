@@ -6,7 +6,7 @@ import app.android.adreal.vault.utils.Constants
 
 @Entity(tableName = Constants.TABLE_NAME)
 data class Item(
-    @PrimaryKey(autoGenerate = true) val id: Int,
+    @PrimaryKey val id: Int,
     var title: String,
     var description: String
 )
