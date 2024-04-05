@@ -30,6 +30,8 @@ class EncryptionHandler(private val context: Context) {
         val salt = ByteArray(16) // 16 bytes salt
         random.nextBytes(salt)
 
+        SharedPreferences.write(Constants.SALT, byteArrayToHexString(salt))
+
         val hash = generateArgon2Hash(
             Argon2Mode.ARGON2_ID,
             password.toByteArray(),

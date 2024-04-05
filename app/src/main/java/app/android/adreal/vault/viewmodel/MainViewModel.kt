@@ -34,19 +34,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         repository.readData.observeForever { encryptedNotes ->
             viewModelScope.launch(Dispatchers.IO) {
-                val decryptedList = mutableListOf<Item>()
-                encryptedNotes?.forEach { encryptedItem ->
-                    val decryptedTitle = EncryptionHandler(application).decrypt(
-                        EncryptionHandler(application).hexStringToByteArray(encryptedItem.title)
-                    ).decodeToString()
-
-                    val decryptedDescription = EncryptionHandler(application).decrypt(
-                        EncryptionHandler(application).hexStringToByteArray(encryptedItem.description)
-                    ).decodeToString()
-
-                    decryptedList.add(Item(encryptedItem.id, decryptedTitle, decryptedDescription))
-                    _decryptedNotes.postValue(decryptedList)
-                }
+//                val decryptedList = mutableListOf<Item>()
+//                encryptedNotes?.forEach { encryptedItem ->
+//                    val decryptedTitle = EncryptionHandler(application).decrypt(
+//                        EncryptionHandler(application).hexStringToByteArray(encryptedItem.title)
+//                    ).decodeToString()
+//
+//                    val decryptedDescription = EncryptionHandler(application).decrypt(
+//                        EncryptionHandler(application).hexStringToByteArray(encryptedItem.description)
+//                    ).decodeToString()
+//
+//                    decryptedList.add(Item(encryptedItem.id, decryptedTitle, decryptedDescription))
+//                    _decryptedNotes.postValue(decryptedList)
+//                }
             }
         }
     }
