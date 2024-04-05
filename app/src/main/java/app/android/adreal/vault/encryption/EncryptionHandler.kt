@@ -3,8 +3,6 @@ package app.android.adreal.vault.encryption
 import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import android.util.Log
-import com.lambdapioneer.argon2kt.Argon2KtUtils.Companion.encodeAsHex
 import java.security.KeyStore
 import java.security.SecureRandom
 import javax.crypto.Cipher

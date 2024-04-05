@@ -13,4 +13,5 @@ object Constants {
     const val TABLE_NAME = "Item"
     const val ONE_SIGNAL_APP_ID = "f3ba3adf-5abf-4541-9972-944ac78ba57b"
     const val USER_ID = "userId"
+    const val COLLECTION_NAME = "EncryptedData"
 }
