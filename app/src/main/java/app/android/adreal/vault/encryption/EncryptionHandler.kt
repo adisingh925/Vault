@@ -25,17 +25,20 @@ class EncryptionHandler(private val context: Context) {
         return SecretKeySpec(keyBytes, ALGORITHM)
     }
 
-    fun generateAESKeyFromPassword(password: String) {
+    fun generateSalt() : String{
         val random = SecureRandom()
         val salt = ByteArray(16) // 16 bytes salt
         random.nextBytes(salt)
+        val hexSalt = byteArrayToHexString(salt)
+        SharedPreferences.write(Constants.SALT, hexSalt)
+        return hexSalt
+    }
 
-        SharedPreferences.write(Constants.SALT, byteArrayToHexString(salt))
-
+    fun generateAESKeyFromPassword(password: String) {
         val hash = generateArgon2Hash(
             Argon2Mode.ARGON2_ID,
             password.toByteArray(),
-            salt,
+            hexStringToByteArray(SharedPreferences.read(Constants.SALT, "").toString()),
             65536,
             10,
             Argon2Version.V13,

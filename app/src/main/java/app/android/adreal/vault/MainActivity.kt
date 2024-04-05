@@ -90,6 +90,16 @@ class MainActivity : AppCompatActivity() {
             val bind = CreatePasswordDialogBinding.inflate(layoutInflater)
             dialog.setContentView(bind.root)
             dialog.setCancelable(false)
+            bind.save.isEnabled = false
+
+            viewModel.salt.observe(this) {
+                if (!it) {
+                    val salt = EncryptionHandler(this).generateSalt()
+                    viewModel.saveSaltInFirestore(salt)
+                }
+
+                bind.save.isEnabled = true
+            }
 
             bind.save.setOnClickListener {
                 bind.password.error = null
@@ -113,6 +123,8 @@ class MainActivity : AppCompatActivity() {
 
                 if(bind.passwordInputField.text.toString() == bind.retypePasswordInputField.text.toString()){
                     EncryptionHandler(this).generateAESKeyFromPassword(bind.passwordInputField.text.toString())
+                    val intent = Intent("com.example.ACTION_NAME")
+                    this.sendBroadcast(intent)
                     dialog.dismiss()
                 }
             }

@@ -58,14 +58,12 @@ class DataAdapter(
 
     fun setData(data: List<Item>) {
         if (data.size > this.itemList.size) {
-            for(itemData in data.indices) {
-                if(!this.itemList.contains(data[itemData])) {
+            for (itemData in data.indices) {
+                if (!this.itemList.contains(data[itemData])) {
                     this.itemList.add(data[itemData])
                     notifyItemInserted(this.itemList.size - 1)
                 }
             }
-//            this.itemList.add(data.last())
-//            notifyItemInserted(data.size - 1)
         } else {
             for (itemData in data.indices) {
                 if (data[itemData] != this.itemList[itemData]) {

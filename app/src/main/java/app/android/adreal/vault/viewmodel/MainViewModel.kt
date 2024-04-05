@@ -24,6 +24,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: Repository
     private val firestore = Firebase.firestore
+    val salt = MutableLiveData<Boolean>()
 
     val decryptedNotes: LiveData<List<Item>>
         get() = _decryptedNotes
@@ -41,11 +42,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     var decryptedDescription = ""
 
                     if (SharedPreferences.read(Constants.HASH, "").toString().isEmpty()) {
-                        Log.d("MainViewModel", "Hash not present")
                         decryptedTitle = encryptedItem.title
                         decryptedDescription = encryptedItem.description
                     } else {
-                        Log.d("MainViewModel", "Hash present")
                         decryptedTitle = EncryptionHandler(application).decrypt(
                             EncryptionHandler(application).hexStringToByteArray(encryptedItem.title)
                         ).decodeToString()
@@ -59,6 +58,31 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     _decryptedNotes.postValue(decryptedList)
                 }
             }
+        }
+    }
+
+    fun decryptData(){
+        val encryptedNotes = repository.readData.value
+        val decryptedList = mutableListOf<Item>()
+        encryptedNotes?.forEach { encryptedItem ->
+            var decryptedTitle = ""
+            var decryptedDescription = ""
+
+            if (SharedPreferences.read(Constants.HASH, "").toString().isEmpty()) {
+                decryptedTitle = encryptedItem.title
+                decryptedDescription = encryptedItem.description
+            } else {
+                decryptedTitle = EncryptionHandler(getApplication()).decrypt(
+                    EncryptionHandler(getApplication()).hexStringToByteArray(encryptedItem.title)
+                ).decodeToString()
+
+                decryptedDescription = EncryptionHandler(getApplication()).decrypt(
+                    EncryptionHandler(getApplication()).hexStringToByteArray(encryptedItem.description)
+                ).decodeToString()
+            }
+
+            decryptedList.add(Item(encryptedItem.id, decryptedTitle, decryptedDescription))
+            _decryptedNotes.postValue(decryptedList)
         }
     }
 
@@ -107,17 +131,33 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         firestore.collection(Constants.COLLECTION_NAME).document(userId).update(updates)
     }
 
+    fun saveSaltInFirestore(salt : String){
+        val userId = SharedPreferences.read(Constants.USER_ID, "").toString()
+        val saltMap = mapOf(Constants.SALT to salt)
+        firestore.collection(Constants.COLLECTION_NAME).document(userId).set(saltMap, SetOptions.merge())
+    }
+
     fun fetchAndStoreData() {
         val userId = SharedPreferences.read(Constants.USER_ID, "").toString()
         firestore.collection(Constants.COLLECTION_NAME).document(userId).get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
                     val encryptedNotesMap = document.data
-                    encryptedNotesMap?.forEach { (_, value) ->
-                        val decryptedItem = Gson().fromJson(value.toString(), Item::class.java)
-                        Log.d("MainViewModel", "Decrypted Item: $decryptedItem")
-                        insert(decryptedItem, false)
+                    encryptedNotesMap?.forEach { (key, value) ->
+                        if (key == Constants.SALT) {
+                            Log.d("MainViewModel", "Salt: $value")
+                            SharedPreferences.write(Constants.SALT, value.toString())
+                            salt.postValue(true)
+                        } else {
+                            val decryptedItem = Gson().fromJson(value.toString(), Item::class.java)
+                            Log.d("MainViewModel", "Decrypted Item: $decryptedItem")
+                            insert(decryptedItem, false)
+                        }
                     }
+                }
+
+                if (SharedPreferences.read(Constants.SALT, "").toString().isEmpty()) {
+                    salt.postValue(false)
                 }
             }
     }
