@@ -44,6 +44,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun setEncryptedData(){
+        _decryptedNotes.postValue(repository.readData.value)
+    }
+
     fun decryptData(encryptedNotes: List<Item>?) {
         val decryptedList = mutableListOf<Item>()
         encryptedNotes?.forEach { encryptedItem ->

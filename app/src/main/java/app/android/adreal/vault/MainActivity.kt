@@ -41,11 +41,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         SharedPreferences.init(this)
+        initDialog()
 
-        if (SharedPreferences.read(Constants.HASH, "").toString().isEmpty()) {
-            initDialog()
-            showSetPasswordDialog()
-        }
 
         if (SharedPreferences.read(Constants.USER_ID, "").toString().isEmpty()) {
             val androidId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID)
@@ -123,6 +120,21 @@ class MainActivity : AppCompatActivity() {
             dialog.show()
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        val intent = Intent("com.example.ACTION_NAME")
+        intent.putExtra("action","lock")
+        this.sendBroadcast(intent)
+        SharedPreferences.write(Constants.HASH, "")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (SharedPreferences.read(Constants.HASH, "").toString().isEmpty()) {
+            showSetPasswordDialog()
         }
     }
 }
