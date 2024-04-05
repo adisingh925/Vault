@@ -41,7 +41,6 @@ class DataAdapter(
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-//        holder.setIsRecyclable(false)
         holder.title.text = itemList[position].title
         holder.description.text = itemList[position].description
 
