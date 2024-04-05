@@ -1,6 +1,7 @@
 package app.android.adreal.vault.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -34,27 +35,40 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         repository.readData.observeForever { encryptedNotes ->
             viewModelScope.launch(Dispatchers.IO) {
-//                val decryptedList = mutableListOf<Item>()
-//                encryptedNotes?.forEach { encryptedItem ->
-//                    val decryptedTitle = EncryptionHandler(application).decrypt(
-//                        EncryptionHandler(application).hexStringToByteArray(encryptedItem.title)
-//                    ).decodeToString()
-//
-//                    val decryptedDescription = EncryptionHandler(application).decrypt(
-//                        EncryptionHandler(application).hexStringToByteArray(encryptedItem.description)
-//                    ).decodeToString()
-//
-//                    decryptedList.add(Item(encryptedItem.id, decryptedTitle, decryptedDescription))
-//                    _decryptedNotes.postValue(decryptedList)
-//                }
+                val decryptedList = mutableListOf<Item>()
+                encryptedNotes?.forEach { encryptedItem ->
+                    var decryptedTitle = ""
+                    var decryptedDescription = ""
+
+                    if (SharedPreferences.read(Constants.HASH, "").toString().isEmpty()) {
+                        Log.d("MainViewModel", "Hash not present")
+                        decryptedTitle = encryptedItem.title
+                        decryptedDescription = encryptedItem.description
+                    } else {
+                        Log.d("MainViewModel", "Hash present")
+                        decryptedTitle = EncryptionHandler(application).decrypt(
+                            EncryptionHandler(application).hexStringToByteArray(encryptedItem.title)
+                        ).decodeToString()
+
+                        decryptedDescription = EncryptionHandler(application).decrypt(
+                            EncryptionHandler(application).hexStringToByteArray(encryptedItem.description)
+                        ).decodeToString()
+                    }
+
+                    decryptedList.add(Item(encryptedItem.id, decryptedTitle, decryptedDescription))
+                    _decryptedNotes.postValue(decryptedList)
+                }
             }
         }
     }
 
-    fun insert(data: Item) {
+    fun insert(data: Item, updateFirestore: Boolean = true) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.insert(data)
-            insertFirestore(data)
+
+            if (updateFirestore) {
+                insertFirestore(data)
+            }
         }
     }
 
@@ -76,7 +90,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val userId = SharedPreferences.read(Constants.USER_ID, "").toString()
         val encryptedNotes = Gson().toJson(data)
         val encryptedNotesMap = mapOf(data.id.toString() to encryptedNotes)
-        firestore.collection(Constants.COLLECTION_NAME).document(userId).set(encryptedNotesMap, SetOptions.merge())
+        firestore.collection(Constants.COLLECTION_NAME).document(userId)
+            .set(encryptedNotesMap, SetOptions.merge())
     }
 
     private fun updateFirestore(data: Item) {
@@ -92,16 +107,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         firestore.collection(Constants.COLLECTION_NAME).document(userId).update(updates)
     }
 
-    fun fetchAndStoreData(){
+    fun fetchAndStoreData() {
         val userId = SharedPreferences.read(Constants.USER_ID, "").toString()
-        firestore.collection(Constants.COLLECTION_NAME).document(userId).get().addOnSuccessListener { document ->
-            if (document.exists()) {
-                val encryptedNotesMap = document.data
-                encryptedNotesMap?.forEach { (_, value) ->
-                    val decryptedItem = Gson().fromJson(value.toString(), Item::class.java)
-                    insert(decryptedItem)
+        firestore.collection(Constants.COLLECTION_NAME).document(userId).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val encryptedNotesMap = document.data
+                    encryptedNotesMap?.forEach { (_, value) ->
+                        val decryptedItem = Gson().fromJson(value.toString(), Item::class.java)
+                        Log.d("MainViewModel", "Decrypted Item: $decryptedItem")
+                        insert(decryptedItem, false)
+                    }
                 }
             }
-        }
     }
 }
