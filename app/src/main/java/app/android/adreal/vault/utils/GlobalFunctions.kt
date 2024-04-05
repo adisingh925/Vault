@@ -12,4 +12,8 @@ class GlobalFunctions {
     private fun getCurrentPrimaryKey(): Int {
         return SharedPreferences.read(Constants.PRIMARY_KEY, -1)
     }
+
+    fun setCurrentPrimaryKey(primaryKey: Int) {
+        SharedPreferences.write(Constants.PRIMARY_KEY, primaryKey)
+    }
 }

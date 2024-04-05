@@ -1,7 +1,9 @@
 package app.android.adreal.vault.viewmodel
 
 import android.app.Application
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -12,6 +14,7 @@ import app.android.adreal.vault.model.Item
 import app.android.adreal.vault.repository.Repository
 import app.android.adreal.vault.sharedpreferences.SharedPreferences
 import app.android.adreal.vault.utils.Constants
+import app.android.adreal.vault.utils.GlobalFunctions
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.SetOptions
@@ -61,7 +64,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun decryptData(){
+    fun decryptData(context: Context){
         val encryptedNotes = repository.readData.value
         val decryptedList = mutableListOf<Item>()
         encryptedNotes?.forEach { encryptedItem ->
@@ -72,13 +75,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 decryptedTitle = encryptedItem.title
                 decryptedDescription = encryptedItem.description
             } else {
-                decryptedTitle = EncryptionHandler(getApplication()).decrypt(
-                    EncryptionHandler(getApplication()).hexStringToByteArray(encryptedItem.title)
-                ).decodeToString()
+                try {
+                    decryptedTitle = EncryptionHandler(getApplication()).decrypt(
+                        EncryptionHandler(getApplication()).hexStringToByteArray(encryptedItem.title)
+                    ).decodeToString()
 
-                decryptedDescription = EncryptionHandler(getApplication()).decrypt(
-                    EncryptionHandler(getApplication()).hexStringToByteArray(encryptedItem.description)
-                ).decodeToString()
+                    decryptedDescription = EncryptionHandler(getApplication()).decrypt(
+                        EncryptionHandler(getApplication()).hexStringToByteArray(encryptedItem.description)
+                    ).decodeToString()
+                }catch (e: Exception){
+                    Toast.makeText(context, "Error decrypting data", Toast.LENGTH_SHORT).show()
+                    return
+                }
             }
 
             decryptedList.add(Item(encryptedItem.id, decryptedTitle, decryptedDescription))
@@ -143,6 +151,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             .addOnSuccessListener { document ->
                 if (document.exists()) {
                     val encryptedNotesMap = document.data
+                    var currentPrimaryKey = -1
                     encryptedNotesMap?.forEach { (key, value) ->
                         if (key == Constants.SALT) {
                             Log.d("MainViewModel", "Salt: $value")
@@ -150,9 +159,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                             salt.postValue(true)
                         } else {
                             val decryptedItem = Gson().fromJson(value.toString(), Item::class.java)
+                            if(decryptedItem.id > currentPrimaryKey){
+                                currentPrimaryKey = decryptedItem.id
+                            }
                             Log.d("MainViewModel", "Decrypted Item: $decryptedItem")
                             insert(decryptedItem, false)
                         }
+                    }
+
+                    if(currentPrimaryKey != -1){
+                        GlobalFunctions().setCurrentPrimaryKey(currentPrimaryKey)
                     }
                 }
 

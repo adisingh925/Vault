@@ -43,7 +43,7 @@ class Data : Fragment(), DataAdapter.OnItemClickListener, DataAdapter.OnItemLong
     private val broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             Log.d("BroadcastReceiver", "onReceive")
-            viewModel.decryptData()
+            viewModel.decryptData(requireContext())
         }
     }
 
