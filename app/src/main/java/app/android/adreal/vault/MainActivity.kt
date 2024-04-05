@@ -101,9 +101,12 @@ class MainActivity : AppCompatActivity() {
                 bind.save.isEnabled = true
             }
 
+            if(SharedPreferences.read(Constants.SALT, "").toString().isNotEmpty()) {
+                bind.save.isEnabled = true
+            }
+
             bind.save.setOnClickListener {
                 bind.password.error = null
-                bind.retypePassword.error = null
 
                 if (bind.passwordInputField.text.toString().isEmpty()
                 ) {
@@ -111,22 +114,10 @@ class MainActivity : AppCompatActivity() {
                     return@setOnClickListener
                 }
 
-                if(bind.retypePasswordInputField.text.toString().isEmpty()){
-                    bind.retypePassword.error = "Please fill all the fields!"
-                    return@setOnClickListener
-                }
-
-                if(bind.passwordInputField.text.toString() != bind.retypePasswordInputField.text.toString()){
-                    bind.retypePassword.error = "Passwords do not match!"
-                    return@setOnClickListener
-                }
-
-                if(bind.passwordInputField.text.toString() == bind.retypePasswordInputField.text.toString()){
-                    EncryptionHandler(this).generateAESKeyFromPassword(bind.passwordInputField.text.toString())
-                    val intent = Intent("com.example.ACTION_NAME")
-                    this.sendBroadcast(intent)
-                    dialog.dismiss()
-                }
+                EncryptionHandler(this).generateAESKeyFromPassword(bind.passwordInputField.text.toString())
+                val intent = Intent("com.example.ACTION_NAME")
+                this.sendBroadcast(intent)
+                dialog.dismiss()
             }
 
             dialog.show()

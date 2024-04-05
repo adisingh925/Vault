@@ -63,8 +63,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         EncryptionHandler(getApplication()).hexStringToByteArray(encryptedItem.description)
                     ).decodeToString()
                 } catch (e: Exception) {
-                    Toast.makeText(getApplication(), "Error decrypting data", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(getApplication(), "Error decrypting data", Toast.LENGTH_SHORT).show()
                     return
                 }
             }
