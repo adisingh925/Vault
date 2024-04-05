@@ -1,41 +1,52 @@
 package app.android.adreal.vault.encryption
 
 import android.content.Context
-import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import java.security.KeyStore
+import app.android.adreal.vault.sharedpreferences.SharedPreferences
+import app.android.adreal.vault.utils.Constants
+import com.lambdapioneer.argon2kt.Argon2Kt
+import com.lambdapioneer.argon2kt.Argon2KtResult
+import com.lambdapioneer.argon2kt.Argon2Mode
+import com.lambdapioneer.argon2kt.Argon2Version
 import java.security.SecureRandom
 import javax.crypto.Cipher
-import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
 
 class EncryptionHandler(private val context: Context) {
 
-    private val keyStore = KeyStore.getInstance("AndroidKeyStore").apply {
-        load(null)
+    private val argon2 by lazy {
+        Argon2Kt()
+    }
+
+    private fun generateAESKeyFromHash(hash: String): SecretKey {
+        val keyBytes: ByteArray = hash.substring(0, AES_KEY_LENGTH / 8).toByteArray()
+        return SecretKeySpec(keyBytes, ALGORITHM)
+    }
+
+    fun generateAESKeyFromPassword(password: String) {
+        val random = SecureRandom()
+        val salt = ByteArray(16) // 16 bytes salt
+        random.nextBytes(salt)
+
+        val hash = generateArgon2Hash(
+            Argon2Mode.ARGON2_ID,
+            password.toByteArray(),
+            salt,
+            65536,
+            10,
+            Argon2Version.V13,
+            32,
+            8
+        ).rawHashAsHexadecimal(true)
+
+        SharedPreferences.write(Constants.HASH, hash)
     }
 
     private fun getKey(): SecretKey {
-        val existingKey = keyStore.getEntry(KEY_ALIAS, null) as? KeyStore.SecretKeyEntry
-        return existingKey?.secretKey ?: createKey()
-    }
-
-    private fun createKey(): SecretKey {
-        return KeyGenerator.getInstance(ALGORITHM).apply {
-            init(
-                KeyGenParameterSpec.Builder(
-                    KEY_ALIAS,
-                    KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
-                )
-                    .setBlockModes(BLOCK_MODE)
-                    .setEncryptionPaddings(PADDING)
-                    .setUserAuthenticationRequired(false)
-                    .setRandomizedEncryptionRequired(true)
-                    .setUnlockedDeviceRequired(true)
-                    .build()
-            )
-        }.generateKey()
+        val hash = SharedPreferences.read(Constants.HASH, "")
+        return generateAESKeyFromHash(hash.toString())
     }
 
     fun encrypt(bytes: ByteArray): ByteArray {
@@ -83,11 +94,33 @@ class EncryptionHandler(private val context: Context) {
         return byteArray.joinToString("") { "%02x".format(it) }
     }
 
+    private fun generateArgon2Hash(
+        argonMode: Argon2Mode,
+        passwordByteArray: ByteArray,
+        saltByteArray: ByteArray,
+        memoryCost: Int,
+        iteration: Int,
+        version: Argon2Version,
+        hashLength: Int,
+        parallelism: Int
+    ): Argon2KtResult {
+        return argon2.hash(
+            mode = argonMode,
+            password = passwordByteArray,
+            salt = saltByteArray,
+            tCostInIterations = iteration,
+            mCostInKibibyte = memoryCost,
+            version = version,
+            hashLengthInBytes = hashLength,
+            parallelism = parallelism
+        )
+    }
+
     companion object {
         private const val ALGORITHM = KeyProperties.KEY_ALGORITHM_AES
         private const val BLOCK_MODE = KeyProperties.BLOCK_MODE_CBC
         private const val PADDING = KeyProperties.ENCRYPTION_PADDING_PKCS7
         private const val TRANSFORMATION = "$ALGORITHM/$BLOCK_MODE/$PADDING"
-        private const val KEY_ALIAS = "secret"
+        private const val AES_KEY_LENGTH = 256
     }
 }

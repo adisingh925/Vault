@@ -91,4 +91,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val updates = hashMapOf<String, Any>(data.id.toString() to FieldValue.delete())
         firestore.collection(Constants.COLLECTION_NAME).document(userId).update(updates)
     }
+
+    fun fetchAndStoreData(){
+        val userId = SharedPreferences.read(Constants.USER_ID, "").toString()
+        firestore.collection(Constants.COLLECTION_NAME).document(userId).get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                val encryptedNotesMap = document.data
+                encryptedNotesMap?.forEach { (_, value) ->
+                    val decryptedItem = Gson().fromJson(value.toString(), Item::class.java)
+                    insert(decryptedItem)
+                }
+            }
+        }
+    }
 }
