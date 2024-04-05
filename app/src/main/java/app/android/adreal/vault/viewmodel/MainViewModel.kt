@@ -131,7 +131,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             .addOnSuccessListener { document ->
                 if (document.exists()) {
                     val encryptedNotesMap = document.data
-                    var currentPrimaryKey = -1
+                    var currentPrimaryKey = GlobalFunctions().getCurrentPrimaryKey()
                     encryptedNotesMap?.forEach { (key, value) ->
                         if (key == Constants.SALT) {
                             Log.d("MainViewModel", "Salt: $value")
@@ -147,7 +147,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         }
                     }
 
-                    if (currentPrimaryKey != -1) {
+                    if (currentPrimaryKey != GlobalFunctions().getCurrentPrimaryKey()) {
                         GlobalFunctions().setCurrentPrimaryKey(currentPrimaryKey)
                     }
                 }

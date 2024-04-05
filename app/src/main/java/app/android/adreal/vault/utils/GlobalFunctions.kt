@@ -9,7 +9,7 @@ class GlobalFunctions {
         return getCurrentPrimaryKey()
     }
 
-    private fun getCurrentPrimaryKey(): Int {
+    fun getCurrentPrimaryKey(): Int {
         return SharedPreferences.read(Constants.PRIMARY_KEY, -1)
     }
 
