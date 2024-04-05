@@ -1,6 +1,7 @@
 package app.android.adreal.vault
 
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import app.android.adreal.vault.databinding.ActivityMainBinding
@@ -23,13 +24,13 @@ class MainActivity : AppCompatActivity() {
         SharedPreferences.init(this)
 
         if (SharedPreferences.read(Constants.USER_ID, "").toString().isEmpty()) {
-            val uuid = UUID.randomUUID().toString()
-            Log.d("MainActivity", "UUID: $uuid")
-            SharedPreferences.write(Constants.USER_ID, uuid)
+            val androidId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID)
+            Log.d("MainActivity", "UUID: $androidId")
+            SharedPreferences.write(Constants.USER_ID, androidId)
 
             OneSignal.User.addTag(
                 Constants.USER_ID,
-                uuid
+                androidId
             )
         } else {
             Log.d(
