@@ -41,6 +41,7 @@ class DataAdapter(
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+//        holder.setIsRecyclable(false)
         holder.title.text = itemList[position].title
         holder.description.text = itemList[position].description
 
@@ -73,9 +74,13 @@ class DataAdapter(
     fun deleteItem(primaryKey: Int) {
         val position = itemList.indexOfFirst { it.id == primaryKey }
         if (position != -1) {
-            itemList.removeAt(position)
+            val newItems = ArrayList(itemList)
+            newItems.removeAt(position)
+            itemList.clear()
+            itemList.addAll(newItems)
             notifyItemRemoved(position)
-            notifyItemRangeChanged(position, itemCount - position)
+            val itemChangedCount = itemList.size - position
+            notifyItemRangeChanged(position, itemChangedCount)
         }
     }
 }

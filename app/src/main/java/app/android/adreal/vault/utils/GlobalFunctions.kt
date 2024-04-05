@@ -5,10 +5,11 @@ import app.android.adreal.vault.sharedpreferences.SharedPreferences
 class GlobalFunctions {
 
     fun getNextPrimaryKey(): Int {
-        return SharedPreferences.read(Constants.PRIMARY_KEY, getCurrentPrimaryKey().toString().toInt()) + 1
+        SharedPreferences.write(Constants.PRIMARY_KEY, getCurrentPrimaryKey() + 1)
+        return getCurrentPrimaryKey()
     }
 
-    private fun getCurrentPrimaryKey() : Int{
+    private fun getCurrentPrimaryKey(): Int {
         return SharedPreferences.read(Constants.PRIMARY_KEY, -1)
     }
 }

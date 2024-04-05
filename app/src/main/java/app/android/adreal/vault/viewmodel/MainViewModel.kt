@@ -75,7 +75,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private fun insertFirestore(data: Item) {
         val userId = SharedPreferences.read(Constants.USER_ID, "").toString()
         val encryptedNotes = Gson().toJson(data)
-        val encryptedNotesMap = mapOf(data.id to encryptedNotes)
+        val encryptedNotesMap = mapOf(data.id.toString() to encryptedNotes)
         firestore.collection(Constants.COLLECTION_NAME).document(userId).set(encryptedNotesMap, SetOptions.merge())
     }
 
