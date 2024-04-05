@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository: Repository
+    val repository: Repository
     private val firestore = Firebase.firestore
     val salt = MutableLiveData<Boolean>()
 
@@ -39,33 +39,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         repository.readData.observeForever { encryptedNotes ->
             viewModelScope.launch(Dispatchers.IO) {
-                val decryptedList = mutableListOf<Item>()
-                encryptedNotes?.forEach { encryptedItem ->
-                    var decryptedTitle = ""
-                    var decryptedDescription = ""
-
-                    if (SharedPreferences.read(Constants.HASH, "").toString().isEmpty()) {
-                        decryptedTitle = encryptedItem.title
-                        decryptedDescription = encryptedItem.description
-                    } else {
-                        decryptedTitle = EncryptionHandler(application).decrypt(
-                            EncryptionHandler(application).hexStringToByteArray(encryptedItem.title)
-                        ).decodeToString()
-
-                        decryptedDescription = EncryptionHandler(application).decrypt(
-                            EncryptionHandler(application).hexStringToByteArray(encryptedItem.description)
-                        ).decodeToString()
-                    }
-
-                    decryptedList.add(Item(encryptedItem.id, decryptedTitle, decryptedDescription))
-                    _decryptedNotes.postValue(decryptedList)
-                }
+                decryptData(encryptedNotes)
             }
         }
     }
 
-    fun decryptData(context: Context){
-        val encryptedNotes = repository.readData.value
+    fun decryptData(encryptedNotes: List<Item>?) {
         val decryptedList = mutableListOf<Item>()
         encryptedNotes?.forEach { encryptedItem ->
             var decryptedTitle = ""
@@ -83,8 +62,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     decryptedDescription = EncryptionHandler(getApplication()).decrypt(
                         EncryptionHandler(getApplication()).hexStringToByteArray(encryptedItem.description)
                     ).decodeToString()
-                }catch (e: Exception){
-                    Toast.makeText(context, "Error decrypting data", Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    Toast.makeText(getApplication(), "Error decrypting data", Toast.LENGTH_SHORT)
+                        .show()
                     return
                 }
             }
@@ -139,10 +119,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         firestore.collection(Constants.COLLECTION_NAME).document(userId).update(updates)
     }
 
-    fun saveSaltInFirestore(salt : String){
+    fun saveSaltInFirestore(salt: String) {
         val userId = SharedPreferences.read(Constants.USER_ID, "").toString()
         val saltMap = mapOf(Constants.SALT to salt)
-        firestore.collection(Constants.COLLECTION_NAME).document(userId).set(saltMap, SetOptions.merge())
+        firestore.collection(Constants.COLLECTION_NAME).document(userId)
+            .set(saltMap, SetOptions.merge())
     }
 
     fun fetchAndStoreData() {
@@ -159,7 +140,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                             salt.postValue(true)
                         } else {
                             val decryptedItem = Gson().fromJson(value.toString(), Item::class.java)
-                            if(decryptedItem.id > currentPrimaryKey){
+                            if (decryptedItem.id > currentPrimaryKey) {
                                 currentPrimaryKey = decryptedItem.id
                             }
                             Log.d("MainViewModel", "Decrypted Item: $decryptedItem")
@@ -167,7 +148,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         }
                     }
 
-                    if(currentPrimaryKey != -1){
+                    if (currentPrimaryKey != -1) {
                         GlobalFunctions().setCurrentPrimaryKey(currentPrimaryKey)
                     }
                 }
