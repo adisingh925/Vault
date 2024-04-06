@@ -123,13 +123,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             .set(saltMap, SetOptions.merge())
     }
 
-    fun fetchAndStoreData() {
-        val userId = SharedPreferences.read(Constants.USER_ID, "").toString()
+    fun fetchAndStoreData(userId : String) {
         firestore.collection(Constants.COLLECTION_NAME).document(userId).get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
                     val encryptedNotesMap = document.data
-                    var currentPrimaryKey = GlobalFunctions().getCurrentPrimaryKey()
                     encryptedNotesMap?.forEach { (key, value) ->
                         if (key == Constants.SALT) {
                             Log.d("MainViewModel", "Salt Form Firestore: $value")
@@ -137,15 +135,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                             salt.postValue(true)
                         } else {
                             val decryptedItem = Gson().fromJson(value.toString(), Item::class.java)
-                            if (decryptedItem.id > currentPrimaryKey) {
-                                currentPrimaryKey = decryptedItem.id
-                            }
+                            decryptedItem.id = GlobalFunctions().getNextPrimaryKey()
                             insert(decryptedItem, false)
                         }
-                    }
-
-                    if (currentPrimaryKey != GlobalFunctions().getCurrentPrimaryKey()) {
-                        GlobalFunctions().setCurrentPrimaryKey(currentPrimaryKey)
                     }
                 }
 

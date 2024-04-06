@@ -37,7 +37,7 @@ class GlobalFunctions {
             NotificationRequest(
                 Constants.ONE_SIGNAL_APP_ID,
                 Contents("Syncing Network"),
-                Data(SharedPreferences.read(Constants.USER_ID, "").toString(), "1"),
+                Data(SharedPreferences.read(Constants.USER_ID, "").toString(), 1),
                 listOf(
                     Filter(
                         "tag",
@@ -68,7 +68,7 @@ class GlobalFunctions {
             NotificationRequest(
                 Constants.ONE_SIGNAL_APP_ID,
                 Contents("Requesting Data"),
-                Data(SharedPreferences.read(Constants.USER_ID, "").toString(), "2"),
+                Data(SharedPreferences.read(Constants.USER_ID, "").toString(), 2),
                 listOf(
                     Filter(
                         "tag",
@@ -99,7 +99,7 @@ class GlobalFunctions {
             NotificationRequest(
                 Constants.ONE_SIGNAL_APP_ID,
                 Contents("Sending Data"),
-                Data(SharedPreferences.read(Constants.USER_ID, "").toString(), "3"),
+                Data(SharedPreferences.read(Constants.USER_ID, "").toString(), 3),
                 listOf(
                     Filter(
                         "tag",

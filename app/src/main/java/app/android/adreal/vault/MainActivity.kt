@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
                 Constants.ONE_SIGNAL_GENERAL_TAG
             )
 
-            viewModel.fetchAndStoreData()
+            viewModel.fetchAndStoreData(SharedPreferences.read(Constants.USER_ID, "").toString())
         } else {
             Log.d(
                 "MainActivity",
@@ -75,8 +75,6 @@ class MainActivity : AppCompatActivity() {
             )
             SharedPreferences.write(Constants.HASH, "")
         }
-
-        GlobalFunctions().deviceBroadcast()
     }
 
     private fun initDialog() {

@@ -8,11 +8,15 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import app.android.adreal.vault.model.Item
+import app.android.adreal.vault.model.SaltModel
 
 @Dao
 interface VaultDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(data : Item)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertSalt(data : SaltModel)
 
     @Update
     fun update(data : Item)
