@@ -11,6 +11,8 @@ import app.android.adreal.vault.MainActivity
 import app.android.adreal.vault.databinding.FragmentAddBinding
 import app.android.adreal.vault.encryption.EncryptionHandler
 import app.android.adreal.vault.model.Item
+import app.android.adreal.vault.sharedpreferences.SharedPreferences
+import app.android.adreal.vault.utils.Constants
 import app.android.adreal.vault.utils.GlobalFunctions
 import app.android.adreal.vault.viewmodel.MainViewModel
 
@@ -64,6 +66,7 @@ class Add : Fragment() {
                     viewModel.insert(
                         Item(
                             GlobalFunctions().getNextPrimaryKey(),
+                            SharedPreferences.read(Constants.USER_ID, "").toString(),
                             EncryptionHandler(requireContext()).byteArrayToHexString(
                                 EncryptionHandler(
                                     requireContext()
@@ -80,6 +83,7 @@ class Add : Fragment() {
                     viewModel.update(
                         Item(
                             noteId,
+                            SharedPreferences.read(Constants.USER_ID, "").toString(),
                             EncryptionHandler(requireContext()).byteArrayToHexString(
                                 EncryptionHandler(
                                     requireContext()

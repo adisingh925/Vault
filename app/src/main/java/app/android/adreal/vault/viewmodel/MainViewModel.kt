@@ -66,7 +66,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 Log.d("MainViewModel", "Error: ${e.message}")
             }
 
-            decryptedList.add(Item(encryptedItem.id, decryptedTitle, decryptedDescription))
+            decryptedList.add(Item(encryptedItem.id,"", decryptedTitle, decryptedDescription))
             _decryptedNotes.postValue(decryptedList)
         }
     }

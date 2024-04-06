@@ -66,7 +66,7 @@ class Data : Fragment(), DataAdapter.OnItemClickListener, DataAdapter.OnItemLong
         binding.delete.setOnClickListener {
             for (i in longPressArray) {
                 adapter.deleteItem(i)
-                viewModel.delete(Item(i, "", ""))
+                viewModel.delete(Item(i, "","", ""))
             }
             binding.delete.visibility = View.GONE
             longPressArray.clear()
