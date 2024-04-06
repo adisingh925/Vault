@@ -4,32 +4,30 @@ import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
-import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
 import app.android.adreal.vault.databinding.ActivityMainBinding
 import app.android.adreal.vault.databinding.CreatePasswordDialogBinding
 import app.android.adreal.vault.encryption.EncryptionHandler
 import app.android.adreal.vault.model.Contents
+import app.android.adreal.vault.model.Data
 import app.android.adreal.vault.model.Filter
 import app.android.adreal.vault.model.NotificationRequest
 import app.android.adreal.vault.model.NotificationResponse
 import app.android.adreal.vault.retrofit.ApiClient
 import app.android.adreal.vault.sharedpreferences.SharedPreferences
 import app.android.adreal.vault.utils.Constants
+import app.android.adreal.vault.utils.GlobalFunctions
 import app.android.adreal.vault.viewmodel.MainViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.onesignal.OneSignal
 import retrofit2.Call
 import retrofit2.Response
-import java.util.UUID
 
 class MainActivity : AppCompatActivity() {
 
@@ -55,14 +53,18 @@ class MainActivity : AppCompatActivity() {
         initDialog()
 
         if (SharedPreferences.read(Constants.USER_ID, "").toString().isEmpty()) {
-            val androidId =
-                Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID)
+            val androidId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID)
             Log.d("MainActivity", "UUID: $androidId")
             SharedPreferences.write(Constants.USER_ID, androidId)
 
             OneSignal.User.addTag(
                 Constants.USER_ID,
                 androidId
+            )
+
+            OneSignal.User.addTag(
+                Constants.ONE_SIGNAL_GENERAL_TAG,
+                Constants.ONE_SIGNAL_GENERAL_TAG
             )
 
             viewModel.fetchAndStoreData()
@@ -74,24 +76,7 @@ class MainActivity : AppCompatActivity() {
             SharedPreferences.write(Constants.HASH, "")
         }
 
-        val request = ApiClient.apiService.sendNotification(
-            NotificationRequest(
-                Constants.ONE_SIGNAL_APP_ID,
-                Contents("07b500aa3e54ece6", "Initiating Data Fetch", "1"),
-                listOf(Filter("tag", "userId", "=", "07b500aa3e54ece6"))
-            )
-        )
-
-        request.enqueue(object : retrofit2.Callback<NotificationResponse> {
-            override fun onResponse(call: Call<NotificationResponse>, response: Response<NotificationResponse>) {
-                Log.d("MainActivity", "Notification Sent!")
-                Log.d("MainActivity", "Response: ${response.body()}")
-            }
-
-            override fun onFailure(call: Call<NotificationResponse>, t: Throwable) {
-                Log.d("MainActivity", "Notification Failed!")
-            }
-        })
+        GlobalFunctions().deviceBroadcast()
     }
 
     private fun initDialog() {
