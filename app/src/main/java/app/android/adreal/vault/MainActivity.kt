@@ -92,22 +92,22 @@ class MainActivity : AppCompatActivity() {
             dialog.setCancelable(false)
             bind.save.isEnabled = false
 
-            viewModel.salt.observe(this) {
-                if (!it) {
-                    Log.d("MainActivity", "Salt Not Found In Firestore!")
-                    val salt = EncryptionHandler(this).generateSalt()
-                    viewModel.saveSaltInFirestore(salt)
-                }else{
-                    Log.d("MainActivity", "Salt Found In Firestore!")
-                }
-
-                bind.save.isEnabled = true
-                viewModel.salt.removeObservers(this)
-            }
-
-            if(SharedPreferences.read(Constants.SALT, "").toString().isNotEmpty()) {
+            if(SharedPreferences.read(Constants.SALT, "").toString().isNotEmpty()){
                 Log.d("MainActivity", "Salt Found In Local!")
                 bind.save.isEnabled = true
+            }else{
+                viewModel.salt.observe(this) {
+                    if (!it) {
+                        Log.d("MainActivity", "Salt Not Found In Firestore!")
+                        val salt = EncryptionHandler(this).generateSalt()
+                        viewModel.saveSaltInFirestore(salt)
+                    }else{
+                        Log.d("MainActivity", "Salt Found In Firestore!")
+                    }
+
+                    bind.save.isEnabled = true
+                    viewModel.salt.removeObservers(this)
+                }
             }
 
             bind.save.setOnClickListener {
