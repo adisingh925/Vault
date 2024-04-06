@@ -29,42 +29,48 @@ class NotificationServiceExtension : INotificationServiceExtension {
         SharedPreferences.init(event.context)
         Log.d("NotificationServiceExtension", "One Signal Notification Received")
         val notification: IDisplayableMutableNotification = event.notification
-        val data = Gson().fromJson(notification.additionalData.toString(), Data::class.java)
 
-        if(data != null){
-            if(data.type == 0){
+        if (notification.additionalData != null) {
+            val data = Gson().fromJson(notification.additionalData.toString(), Data::class.java)
+
+            if (data.type == 0) {
                 CoroutineScope(Dispatchers.IO).launch {
                     Database
                         .getDatabase(event.context)
                         .dao()
-                        .insertDeviceWithReplace(DeviceModel(data.deviceId, System.currentTimeMillis()))
+                        .insertDeviceWithReplace(
+                            DeviceModel(
+                                data.deviceId,
+                                System.currentTimeMillis()
+                            )
+                        )
                 }
-            }else if(data.type == 1){
+            } else if (data.type == 1) {
                 fetchAndStoreData(data.deviceId, event.context)
             }
         }
-
-//        event.preventDefault()
     }
 
-    private fun fetchAndStoreData(userId : String, context: Context) {
-        firestore.collection(Constants.COLLECTION_NAME).document(userId).get().addOnSuccessListener { document ->
-            if (document.exists()) {
-                val encryptedNotesMap = document.data
-                encryptedNotesMap?.forEach { (key, value) ->
-                    if (key == Constants.SALT) {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            Database.getDatabase(context).dao().insertSalt(SaltModel(userId, value.toString()))
-                        }
-                    } else {
-                        val decryptedItem = Gson().fromJson(value.toString(), Item::class.java)
+    private fun fetchAndStoreData(userId: String, context: Context) {
+        firestore.collection(Constants.COLLECTION_NAME).document(userId).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val encryptedNotesMap = document.data
+                    encryptedNotesMap?.forEach { (key, value) ->
+                        if (key == Constants.SALT) {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                Database.getDatabase(context).dao()
+                                    .insertSalt(SaltModel(userId, value.toString()))
+                            }
+                        } else {
+                            val decryptedItem = Gson().fromJson(value.toString(), Item::class.java)
 
-                        CoroutineScope(Dispatchers.IO).launch {
-                            Database.getDatabase(context).dao().insertWithReplace(decryptedItem)
+                            CoroutineScope(Dispatchers.IO).launch {
+                                Database.getDatabase(context).dao().insertWithReplace(decryptedItem)
+                            }
                         }
                     }
                 }
             }
-        }
     }
 }

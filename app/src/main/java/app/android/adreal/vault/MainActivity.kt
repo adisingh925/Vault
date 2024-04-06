@@ -61,8 +61,7 @@ class MainActivity : AppCompatActivity() {
         initDialog()
 
         if (SharedPreferences.read(Constants.USER_ID, "").toString().isEmpty()) {
-            val androidId =
-                Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID)
+            val androidId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID)
             Log.d("MainActivity", "UUID: $androidId")
             SharedPreferences.write(Constants.USER_ID, androidId)
 
@@ -86,6 +85,8 @@ class MainActivity : AppCompatActivity() {
             )
             SharedPreferences.write(Constants.HASH, "")
         }
+
+        GlobalFunctions().deviceBroadcast()
     }
 
     private fun initDialog() {
