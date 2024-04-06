@@ -12,8 +12,10 @@ import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequest
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import app.android.adreal.vault.databinding.ActivityMainBinding
 import app.android.adreal.vault.databinding.CreatePasswordDialogBinding
@@ -166,19 +168,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setPingWorkRequest() {
-        val workManager = WorkManager.getInstance(applicationContext)
+        Log.d("MainActivity", "setPingWorkRequest: Setting PingWorkRequest")
 
         val constraints = Constraints.Builder()
-            .setRequiresCharging(false)
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
-        val periodicWorkRequest = PeriodicWorkRequest.Builder(
-            PingWorker::class.java,
-            15,
-            TimeUnit.MINUTES
+        val networkSyncWork = PeriodicWorkRequestBuilder<PingWorker>(
+            15, TimeUnit.MINUTES
         ).setConstraints(constraints).build()
 
-        workManager.enqueue(periodicWorkRequest)
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "NetworkSyncWorker",
+            ExistingPeriodicWorkPolicy.KEEP,
+            networkSyncWork
+        )
     }
 }
