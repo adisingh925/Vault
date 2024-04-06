@@ -51,25 +51,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun decryptData(encryptedNotes: List<Item>?) {
         val decryptedList = mutableListOf<Item>()
         encryptedNotes?.forEach { encryptedItem ->
-            val decryptedTitle: String
-            val decryptedDescription: String
+            var decryptedTitle = encryptedItem.title
+            var decryptedDescription = encryptedItem.description
 
-            if (SharedPreferences.read(Constants.HASH, "").toString().isEmpty()) {
-                decryptedTitle = encryptedItem.title
-                decryptedDescription = encryptedItem.description
-            } else {
-                try {
-                    decryptedTitle = EncryptionHandler(getApplication()).decrypt(
-                        EncryptionHandler(getApplication()).hexStringToByteArray(encryptedItem.title)
-                    ).decodeToString()
+            try {
+                decryptedTitle = EncryptionHandler(getApplication()).decrypt(
+                    EncryptionHandler(getApplication()).hexStringToByteArray(decryptedTitle)
+                ).decodeToString()
 
-                    decryptedDescription = EncryptionHandler(getApplication()).decrypt(
-                        EncryptionHandler(getApplication()).hexStringToByteArray(encryptedItem.description)
-                    ).decodeToString()
-                } catch (e: Exception) {
-//                    Toast.makeText(getApplication(), "Error decrypting data", Toast.LENGTH_SHORT).show()
-                    return
-                }
+                decryptedDescription = EncryptionHandler(getApplication()).decrypt(
+                    EncryptionHandler(getApplication()).hexStringToByteArray(decryptedDescription)
+                ).decodeToString()
+            } catch (e: Exception) {
+                Log.d("MainViewModel", "Error: ${e.message}")
             }
 
             decryptedList.add(Item(encryptedItem.id, decryptedTitle, decryptedDescription))

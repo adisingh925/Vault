@@ -43,10 +43,9 @@ class Data : Fragment(), DataAdapter.OnItemClickListener, DataAdapter.OnItemLong
 
     private val broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            Log.d("BroadcastReceiver", "onReceive")
-            if(intent.action.equals(Constants.ENCRYPT)){
+            if (intent.action.equals(Constants.ENCRYPT)) {
                 viewModel.setEncryptedData()
-            }else{
+            } else {
                 viewModel.decryptData(viewModel.repository.readData.value)
             }
         }
@@ -93,7 +92,7 @@ class Data : Fragment(), DataAdapter.OnItemClickListener, DataAdapter.OnItemLong
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    private fun registerReceiver(){
+    private fun registerReceiver() {
         val filter = IntentFilter().apply {
             addAction(Constants.ENCRYPT)
             addAction(Constants.DECRYPT)
@@ -111,9 +110,9 @@ class Data : Fragment(), DataAdapter.OnItemClickListener, DataAdapter.OnItemLong
     }
 
     override fun onItemClick(index: Int) {
-        if(longPressArray.isNotEmpty()){
+        if (longPressArray.isNotEmpty()) {
 
-        }else{
+        } else {
             val data = viewModel.decryptedNotes.value?.get(index)
             if (data != null) {
                 try {

@@ -28,7 +28,7 @@ class Add : Fragment() {
         activity as MainActivity
     }
 
-    var noteId = -1
+    private var noteId = -1
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

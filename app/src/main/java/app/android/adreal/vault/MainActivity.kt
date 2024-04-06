@@ -63,6 +63,7 @@ class MainActivity : AppCompatActivity() {
                 "MainActivity",
                 "UUID: Already Exists! -> ${SharedPreferences.read(Constants.USER_ID, "")}"
             )
+            SharedPreferences.write(Constants.HASH, "")
         }
     }
 
