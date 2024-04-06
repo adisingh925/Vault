@@ -7,6 +7,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import app.android.adreal.vault.model.DeviceModel
 import app.android.adreal.vault.model.Item
 import app.android.adreal.vault.model.SaltModel
 
@@ -17,6 +18,9 @@ interface VaultDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertWithReplace(data : Item)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertDeviceWithReplace(data : DeviceModel)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSalt(data : SaltModel)

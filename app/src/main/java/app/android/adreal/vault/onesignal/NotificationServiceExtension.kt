@@ -5,6 +5,7 @@ import android.util.Log
 import app.android.adreal.vault.database.Database
 import app.android.adreal.vault.database.Database_Impl
 import app.android.adreal.vault.model.Data
+import app.android.adreal.vault.model.DeviceModel
 import app.android.adreal.vault.model.Item
 import app.android.adreal.vault.model.SaltModel
 import app.android.adreal.vault.sharedpreferences.SharedPreferences
@@ -30,7 +31,14 @@ class NotificationServiceExtension : INotificationServiceExtension {
         val notification: IDisplayableMutableNotification = event.notification
         val data = Gson().fromJson(notification.additionalData.toString(), Data::class.java)
 
-        if(data.type == 1){
+        if(data.type == 0){
+            CoroutineScope(Dispatchers.IO).launch {
+                Database
+                    .getDatabase(event.context)
+                    .dao()
+                    .insertDeviceWithReplace(DeviceModel(data.deviceId, System.currentTimeMillis()))
+            }
+        }else if(data.type == 1){
             fetchAndStoreData(data.deviceId, event.context)
         }
 

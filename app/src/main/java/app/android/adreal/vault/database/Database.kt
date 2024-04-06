@@ -5,10 +5,11 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import app.android.adreal.vault.dao.VaultDao
+import app.android.adreal.vault.model.DeviceModel
 import app.android.adreal.vault.model.Item
 import app.android.adreal.vault.model.SaltModel
 
-@Database(entities = [Item::class, SaltModel::class], version = 1, exportSchema = false)
+@Database(entities = [Item::class, SaltModel::class, DeviceModel::class], version = 1, exportSchema = false)
 abstract class Database : RoomDatabase() {
 
     abstract fun dao(): VaultDao

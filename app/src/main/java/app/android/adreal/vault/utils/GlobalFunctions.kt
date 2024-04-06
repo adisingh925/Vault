@@ -13,19 +13,6 @@ import retrofit2.Response
 
 class GlobalFunctions {
 
-    fun getNextPrimaryKey(): Int {
-        SharedPreferences.write(Constants.PRIMARY_KEY, getCurrentPrimaryKey() + 1)
-        return getCurrentPrimaryKey()
-    }
-
-    fun getCurrentPrimaryKey(): Int {
-        return SharedPreferences.read(Constants.PRIMARY_KEY, -1)
-    }
-
-    fun setCurrentPrimaryKey(primaryKey: Int) {
-        SharedPreferences.write(Constants.PRIMARY_KEY, primaryKey)
-    }
-
     /**
      * 0 - device broadcast
      * 1 - download and save
