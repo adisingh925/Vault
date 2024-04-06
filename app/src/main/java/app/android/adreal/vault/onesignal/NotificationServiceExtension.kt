@@ -20,6 +20,7 @@ import com.onesignal.notifications.INotificationServiceExtension
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 
 class NotificationServiceExtension : INotificationServiceExtension {
 
@@ -27,10 +28,10 @@ class NotificationServiceExtension : INotificationServiceExtension {
 
     override fun onNotificationReceived(event: INotificationReceivedEvent) {
         SharedPreferences.init(event.context)
-        Log.d("NotificationServiceExtension", "One Signal Notification Received")
+        Log.d("NotificationServiceExtension", "One Signal Notification Received : ${event.notification}")
         val notification: IDisplayableMutableNotification = event.notification
 
-        if (notification.additionalData != null) {
+        if (notification.additionalData != null && notification.additionalData.toString().length > 2) {
             val data = Gson().fromJson(notification.additionalData.toString(), Data::class.java)
 
             if (data.type == 0) {
