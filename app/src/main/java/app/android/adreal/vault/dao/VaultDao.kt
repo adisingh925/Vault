@@ -20,6 +20,6 @@ interface VaultDao {
     @Delete
     fun delete(data: Item)
 
-    @Query("SELECT * from Item order by id asc")
-    fun read() : LiveData<List<Item>>
+    @Query("SELECT * from Item where deviceId = :deviceId order by id asc")
+    fun read(deviceId : String) : LiveData<List<Item>>
 }
