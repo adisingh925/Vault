@@ -11,6 +11,10 @@ import android.view.Window
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkManager
 import app.android.adreal.vault.databinding.ActivityMainBinding
 import app.android.adreal.vault.databinding.CreatePasswordDialogBinding
 import app.android.adreal.vault.encryption.EncryptionHandler
@@ -24,10 +28,12 @@ import app.android.adreal.vault.sharedpreferences.SharedPreferences
 import app.android.adreal.vault.utils.Constants
 import app.android.adreal.vault.utils.GlobalFunctions
 import app.android.adreal.vault.viewmodel.MainViewModel
+import app.android.adreal.vault.workmanager.PingWorker
 import com.google.android.material.snackbar.Snackbar
 import com.onesignal.OneSignal
 import retrofit2.Call
 import retrofit2.Response
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
@@ -66,6 +72,8 @@ class MainActivity : AppCompatActivity() {
                 Constants.ONE_SIGNAL_GENERAL_TAG,
                 Constants.ONE_SIGNAL_GENERAL_TAG
             )
+
+            setPingWorkRequest()
 
             viewModel.fetchAndStoreData(SharedPreferences.read(Constants.USER_ID, "").toString())
         } else {
@@ -154,5 +162,24 @@ class MainActivity : AppCompatActivity() {
         if (SharedPreferences.read(Constants.HASH, "").toString().isEmpty()) {
             showSetPasswordDialog()
         }
+    }
+
+    private fun setPingWorkRequest() {
+        val workManager = WorkManager.getInstance(applicationContext)
+
+        val constraints = Constraints.Builder()
+            .setRequiresCharging(false)
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        val periodicWorkRequest = PeriodicWorkRequest.Builder(
+            PingWorker::class.java,
+            1,
+            TimeUnit.HOURS
+        )
+            .setConstraints(constraints)
+            .build()
+
+        workManager.enqueue(periodicWorkRequest)
     }
 }

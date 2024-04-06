@@ -34,7 +34,7 @@ class NotificationServiceExtension : INotificationServiceExtension {
             fetchAndStoreData(data.deviceId, event.context)
         }
 
-        event.preventDefault()
+//        event.preventDefault()
     }
 
     private fun fetchAndStoreData(userId : String, context: Context) {

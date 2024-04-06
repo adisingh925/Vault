@@ -27,7 +27,8 @@ class GlobalFunctions {
     }
 
     /**
-     * 1 - ping
+     * 0 - device broadcast
+     * 1 - download and save
      * 2 - request
      * 3 - response
      */
@@ -37,7 +38,7 @@ class GlobalFunctions {
             NotificationRequest(
                 Constants.ONE_SIGNAL_APP_ID,
                 Contents("Syncing Network"),
-                Data(SharedPreferences.read(Constants.USER_ID, "").toString(), 1),
+                Data(SharedPreferences.read(Constants.USER_ID, "").toString(), 0),
                 listOf(
                     Filter(
                         "tag",
