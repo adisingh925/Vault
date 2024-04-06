@@ -16,4 +16,6 @@ object Constants {
     const val COLLECTION_NAME = "EncryptedData"
     const val PRIMARY_KEY = "PrimaryKey"
     const val HASH = "hash"
+    const val ENCRYPT = "encrypt"
+    const val DECRYPT = "decrypt"
 }

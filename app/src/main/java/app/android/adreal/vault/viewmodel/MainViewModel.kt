@@ -44,15 +44,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun setEncryptedData(){
+    fun setEncryptedData() {
         _decryptedNotes.postValue(repository.readData.value)
     }
 
     fun decryptData(encryptedNotes: List<Item>?) {
         val decryptedList = mutableListOf<Item>()
         encryptedNotes?.forEach { encryptedItem ->
-            var decryptedTitle = ""
-            var decryptedDescription = ""
+            val decryptedTitle: String
+            val decryptedDescription: String
 
             if (SharedPreferences.read(Constants.HASH, "").toString().isEmpty()) {
                 decryptedTitle = encryptedItem.title
@@ -138,7 +138,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     var currentPrimaryKey = GlobalFunctions().getCurrentPrimaryKey()
                     encryptedNotesMap?.forEach { (key, value) ->
                         if (key == Constants.SALT) {
-                            Log.d("MainViewModel", "Salt: $value")
                             SharedPreferences.write(Constants.SALT, value.toString())
                             salt.postValue(true)
                         } else {
@@ -146,7 +145,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                             if (decryptedItem.id > currentPrimaryKey) {
                                 currentPrimaryKey = decryptedItem.id
                             }
-                            Log.d("MainViewModel", "Decrypted Item: $decryptedItem")
                             insert(decryptedItem, false)
                         }
                     }

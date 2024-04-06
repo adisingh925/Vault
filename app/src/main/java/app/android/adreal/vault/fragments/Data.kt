@@ -20,6 +20,7 @@ import app.android.adreal.vault.R
 import app.android.adreal.vault.adapter.DataAdapter
 import app.android.adreal.vault.databinding.FragmentDataBinding
 import app.android.adreal.vault.model.Item
+import app.android.adreal.vault.utils.Constants
 import app.android.adreal.vault.viewmodel.MainViewModel
 
 class Data : Fragment(), DataAdapter.OnItemClickListener, DataAdapter.OnItemLongClickListener {
@@ -43,7 +44,7 @@ class Data : Fragment(), DataAdapter.OnItemClickListener, DataAdapter.OnItemLong
     private val broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             Log.d("BroadcastReceiver", "onReceive")
-            if(intent.getStringExtra("action").equals("lock")){
+            if(intent.action.equals(Constants.ENCRYPT)){
                 viewModel.setEncryptedData()
             }else{
                 viewModel.decryptData(viewModel.repository.readData.value)
@@ -93,7 +94,10 @@ class Data : Fragment(), DataAdapter.OnItemClickListener, DataAdapter.OnItemLong
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun registerReceiver(){
-        val filter = IntentFilter("com.example.ACTION_NAME")
+        val filter = IntentFilter().apply {
+            addAction(Constants.ENCRYPT)
+            addAction(Constants.DECRYPT)
+        }
         context?.registerReceiver(broadcastReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
     }
 

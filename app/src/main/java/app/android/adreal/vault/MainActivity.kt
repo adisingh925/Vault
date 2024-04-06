@@ -115,7 +115,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 EncryptionHandler(this).generateAESKeyFromPassword(bind.passwordInputField.text.toString())
-                val intent = Intent("com.example.ACTION_NAME")
+                val intent = Intent(Constants.DECRYPT)
                 this.sendBroadcast(intent)
                 dialog.dismiss()
             }
@@ -128,8 +128,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        val intent = Intent("com.example.ACTION_NAME")
-        intent.putExtra("action","lock")
+        val intent = Intent(Constants.ENCRYPT)
         this.sendBroadcast(intent)
         SharedPreferences.write(Constants.HASH, "")
     }
