@@ -26,38 +26,36 @@ class NotificationServiceExtension : INotificationServiceExtension {
 
     override fun onNotificationReceived(event: INotificationReceivedEvent) {
         SharedPreferences.init(event.context)
-        Log.d("NotificationServiceExtension", "onNotificationReceived: ${event.notification}")
+        Log.d("NotificationServiceExtension", "One Signal Notification Received")
         val notification: IDisplayableMutableNotification = event.notification
         val data = Gson().fromJson(notification.additionalData.toString(), Data::class.java)
-        Log.d("NotificationServiceExtension", "Data: $data")
 
         if(data.type == 1){
             fetchAndStoreData(data.deviceId, event.context)
         }
 
-//        event.preventDefault()
+        event.preventDefault()
     }
 
     private fun fetchAndStoreData(userId : String, context: Context) {
-        firestore.collection(Constants.COLLECTION_NAME).document(userId).get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    val encryptedNotesMap = document.data
-                    encryptedNotesMap?.forEach { (key, value) ->
-                        if (key == Constants.SALT) {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                Database.getDatabase(context).dao().insertSalt(SaltModel(userId, value.toString()))
-                            }
-                        } else {
-                            val decryptedItem = Gson().fromJson(value.toString(), Item::class.java)
-                            decryptedItem.id = GlobalFunctions().getNextPrimaryKey()
+        firestore.collection(Constants.COLLECTION_NAME).document(userId).get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                val encryptedNotesMap = document.data
+                encryptedNotesMap?.forEach { (key, value) ->
+                    if (key == Constants.SALT) {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            Database.getDatabase(context).dao().insertSalt(SaltModel(userId, value.toString()))
+                        }
+                    } else {
+                        val decryptedItem = Gson().fromJson(value.toString(), Item::class.java)
+                        decryptedItem.id = GlobalFunctions().getNextPrimaryKey()
 
-                            CoroutineScope(Dispatchers.IO).launch {
-                                Database.getDatabase(context).dao().insert(decryptedItem)
-                            }
+                        CoroutineScope(Dispatchers.IO).launch {
+                            Database.getDatabase(context).dao().insert(decryptedItem)
                         }
                     }
                 }
             }
+        }
     }
 }

@@ -66,7 +66,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 Log.d("MainViewModel", "Error: ${e.message}")
             }
 
-            decryptedList.add(Item(encryptedItem.id,"", decryptedTitle, decryptedDescription))
+            decryptedList.add(Item(encryptedItem.id, "", decryptedTitle, decryptedDescription))
             _decryptedNotes.postValue(decryptedList)
         }
     }
@@ -119,31 +119,29 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun saveSaltInFirestore(salt: String) {
         val userId = SharedPreferences.read(Constants.USER_ID, "").toString()
         val saltMap = mapOf(Constants.SALT to salt)
-        firestore.collection(Constants.COLLECTION_NAME).document(userId)
-            .set(saltMap, SetOptions.merge())
+        firestore.collection(Constants.COLLECTION_NAME).document(userId).set(saltMap, SetOptions.merge())
     }
 
-    fun fetchAndStoreData(userId : String) {
-        firestore.collection(Constants.COLLECTION_NAME).document(userId).get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    val encryptedNotesMap = document.data
-                    encryptedNotesMap?.forEach { (key, value) ->
-                        if (key == Constants.SALT) {
-                            Log.d("MainViewModel", "Salt Form Firestore: $value")
-                            SharedPreferences.write(Constants.SALT, value.toString())
-                            salt.postValue(true)
-                        } else {
-                            val decryptedItem = Gson().fromJson(value.toString(), Item::class.java)
-                            decryptedItem.id = GlobalFunctions().getNextPrimaryKey()
-                            insert(decryptedItem, false)
-                        }
+    fun fetchAndStoreData(userId: String) {
+        firestore.collection(Constants.COLLECTION_NAME).document(userId).get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                val encryptedNotesMap = document.data
+                encryptedNotesMap?.forEach { (key, value) ->
+                    if (key == Constants.SALT) {
+                        Log.d("MainViewModel", "Salt Form Firestore: $value")
+                        SharedPreferences.write(Constants.SALT, value.toString())
+                        salt.postValue(true)
+                    } else {
+                        val decryptedItem = Gson().fromJson(value.toString(), Item::class.java)
+                        decryptedItem.id = GlobalFunctions().getNextPrimaryKey()
+                        insert(decryptedItem, false)
                     }
                 }
-
-                if (SharedPreferences.read(Constants.SALT, "").toString().isEmpty()) {
-                    salt.postValue(false)
-                }
             }
+
+            if (SharedPreferences.read(Constants.SALT, "").toString().isEmpty()) {
+                salt.postValue(false)
+            }
+        }
     }
 }
