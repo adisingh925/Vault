@@ -1,6 +1,7 @@
 package app.android.adreal.vault.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,8 +14,8 @@ import app.android.adreal.vault.encryption.EncryptionHandler
 import app.android.adreal.vault.model.Item
 import app.android.adreal.vault.sharedpreferences.SharedPreferences
 import app.android.adreal.vault.utils.Constants
-import app.android.adreal.vault.utils.GlobalFunctions
 import app.android.adreal.vault.viewmodel.MainViewModel
+import java.util.UUID
 
 class Add : Fragment() {
 
@@ -30,14 +31,20 @@ class Add : Fragment() {
         activity as MainActivity
     }
 
-    private var noteId = -1
+    private var noteId : UUID? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-        noteId = arguments?.getInt("id") ?: -1
+
+        noteId = if(arguments?.getString("id") != null) {
+            UUID.fromString(arguments?.getString("id"))
+        }else{
+            null
+        }
+
         binding.title.setText(arguments?.getString("title") ?: "")
         binding.description.setText(arguments?.getString("description") ?: "")
 
@@ -62,10 +69,10 @@ class Add : Fragment() {
                     return@setOnClickListener
                 }
 
-                if (noteId == -1) {
+                if (noteId == null) {
                     viewModel.insert(
                         Item(
-                            GlobalFunctions().getNextPrimaryKey(),
+                            UUID.randomUUID(),
                             SharedPreferences.read(Constants.USER_ID, "").toString(),
                             EncryptionHandler(requireContext()).byteArrayToHexString(
                                 EncryptionHandler(
@@ -82,7 +89,7 @@ class Add : Fragment() {
                 } else {
                     viewModel.update(
                         Item(
-                            noteId,
+                            noteId!!,
                             SharedPreferences.read(Constants.USER_ID, "").toString(),
                             EncryptionHandler(requireContext()).byteArrayToHexString(
                                 EncryptionHandler(

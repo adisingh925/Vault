@@ -1,9 +1,7 @@
 package app.android.adreal.vault.viewmodel
 
 import android.app.Application
-import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -99,8 +97,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val userId = SharedPreferences.read(Constants.USER_ID, "").toString()
         val encryptedNotes = Gson().toJson(data)
         val encryptedNotesMap = mapOf(data.id.toString() to encryptedNotes)
-        firestore.collection(Constants.COLLECTION_NAME).document(userId)
-            .set(encryptedNotesMap, SetOptions.merge())
+        firestore.collection(Constants.COLLECTION_NAME).document(userId).set(encryptedNotesMap, SetOptions.merge())
     }
 
     private fun updateFirestore(data: Item) {
@@ -133,7 +130,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         salt.postValue(true)
                     } else {
                         val decryptedItem = Gson().fromJson(value.toString(), Item::class.java)
-                        decryptedItem.id = GlobalFunctions().getNextPrimaryKey()
                         insert(decryptedItem, false)
                     }
                 }

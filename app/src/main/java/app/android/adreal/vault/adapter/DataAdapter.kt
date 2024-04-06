@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import app.android.adreal.vault.databinding.DataItemBinding
 import app.android.adreal.vault.model.Item
+import java.util.UUID
 
 class DataAdapter(
     private val context: Context,
@@ -22,7 +23,7 @@ class DataAdapter(
     }
 
     interface OnItemLongClickListener {
-        fun onItemLongClick(primaryKey: Int, status: Boolean)
+        fun onItemLongClick(primaryKey: UUID, status: Boolean)
     }
 
     class MyViewHolder(binding: DataItemBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -73,7 +74,7 @@ class DataAdapter(
         }
     }
 
-    fun deleteItem(primaryKey: Int) {
+    fun deleteItem(primaryKey: UUID) {
         val position = itemList.indexOfFirst { it.id == primaryKey }
         if (position != -1) {
             val newItems = ArrayList(itemList)

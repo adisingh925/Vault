@@ -48,7 +48,6 @@ class NotificationServiceExtension : INotificationServiceExtension {
                         }
                     } else {
                         val decryptedItem = Gson().fromJson(value.toString(), Item::class.java)
-                        decryptedItem.id = GlobalFunctions().getNextPrimaryKey()
 
                         CoroutineScope(Dispatchers.IO).launch {
                             Database.getDatabase(context).dao().insert(decryptedItem)

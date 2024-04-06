@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,6 +21,7 @@ import app.android.adreal.vault.databinding.FragmentDataBinding
 import app.android.adreal.vault.model.Item
 import app.android.adreal.vault.utils.Constants
 import app.android.adreal.vault.viewmodel.MainViewModel
+import java.util.UUID
 
 class Data : Fragment(), DataAdapter.OnItemClickListener, DataAdapter.OnItemLongClickListener {
 
@@ -51,7 +51,7 @@ class Data : Fragment(), DataAdapter.OnItemClickListener, DataAdapter.OnItemLong
         }
     }
 
-    private val longPressArray = ArrayList<Int>()
+    private val longPressArray = ArrayList<UUID>()
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreateView(
@@ -100,9 +100,9 @@ class Data : Fragment(), DataAdapter.OnItemClickListener, DataAdapter.OnItemLong
         context?.registerReceiver(broadcastReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
     }
 
-    private fun getBundle(id: Int, title: String, description: String): Bundle {
+    private fun getBundle(id: UUID, title: String, description: String): Bundle {
         val bundle = Bundle()
-        bundle.putInt("id", id)
+        bundle.putString("id", id.toString())
         bundle.putString("title", title)
         bundle.putString("description", description)
 
@@ -127,7 +127,7 @@ class Data : Fragment(), DataAdapter.OnItemClickListener, DataAdapter.OnItemLong
         }
     }
 
-    override fun onItemLongClick(primaryKey: Int, status: Boolean) {
+    override fun onItemLongClick(primaryKey: UUID, status: Boolean) {
         if (status) {
             longPressArray.add(primaryKey)
         } else {
