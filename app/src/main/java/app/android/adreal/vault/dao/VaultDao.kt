@@ -16,6 +16,9 @@ interface VaultDao {
     fun insert(data : Item)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertWithReplace(data : Item)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSalt(data : SaltModel)
 
     @Update

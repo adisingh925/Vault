@@ -50,7 +50,7 @@ class NotificationServiceExtension : INotificationServiceExtension {
                         val decryptedItem = Gson().fromJson(value.toString(), Item::class.java)
 
                         CoroutineScope(Dispatchers.IO).launch {
-                            Database.getDatabase(context).dao().insert(decryptedItem)
+                            Database.getDatabase(context).dao().insertWithReplace(decryptedItem)
                         }
                     }
                 }
