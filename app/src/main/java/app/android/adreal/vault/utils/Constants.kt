@@ -18,4 +18,5 @@ object Constants {
     const val HASH = "hash"
     const val ENCRYPT = "encrypt"
     const val DECRYPT = "decrypt"
+    const val ONE_SIGNAL_REST_API_KEY = "OGU0ZmM2NTQtNGMxNy00YjA5LTg0ZmEtZTQ5ZGRjZmNlMWQ2"
 }
