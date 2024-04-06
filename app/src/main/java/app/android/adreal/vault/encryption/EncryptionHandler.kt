@@ -2,6 +2,7 @@ package app.android.adreal.vault.encryption
 
 import android.content.Context
 import android.security.keystore.KeyProperties
+import android.util.Log
 import app.android.adreal.vault.sharedpreferences.SharedPreferences
 import app.android.adreal.vault.utils.Constants
 import com.lambdapioneer.argon2kt.Argon2Kt
@@ -39,12 +40,14 @@ class EncryptionHandler(private val context: Context) {
             Argon2Mode.ARGON2_ID,
             password.toByteArray(),
             hexStringToByteArray(SharedPreferences.read(Constants.SALT, "").toString()),
-            65536,
+            256000,
             10,
             Argon2Version.V13,
             32,
-            8
+            16
         ).rawHashAsHexadecimal(true)
+
+        Log.d("EncryptionHandler", "Hash: $hash")
 
         SharedPreferences.write(Constants.HASH, hash)
     }

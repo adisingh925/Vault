@@ -67,7 +67,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         EncryptionHandler(getApplication()).hexStringToByteArray(encryptedItem.description)
                     ).decodeToString()
                 } catch (e: Exception) {
-                    Toast.makeText(getApplication(), "Error decrypting data", Toast.LENGTH_SHORT).show()
+//                    Toast.makeText(getApplication(), "Error decrypting data", Toast.LENGTH_SHORT).show()
                     return
                 }
             }
@@ -138,6 +138,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     var currentPrimaryKey = GlobalFunctions().getCurrentPrimaryKey()
                     encryptedNotesMap?.forEach { (key, value) ->
                         if (key == Constants.SALT) {
+                            Log.d("MainViewModel", "Salt Form Firestore: $value")
                             SharedPreferences.write(Constants.SALT, value.toString())
                             salt.postValue(true)
                         } else {
