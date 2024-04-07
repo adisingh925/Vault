@@ -34,6 +34,9 @@ interface VaultDao {
     @Query("SELECT * from Item where deviceId = :deviceId order by id asc")
     fun read(deviceId : String) : LiveData<List<Item>>
 
+    @Query("SELECT * from Item where deviceId = :deviceId order by id asc")
+    fun readWithoutLiveData(deviceId : String) : List<Item>
+
     @Query("SELECT * from device_table order by lastUpdated desc")
     fun readDevices() : List<DeviceModel>
 

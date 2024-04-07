@@ -26,7 +26,6 @@ class GlobalFunctions {
     /**
      * 0 - device broadcast
      * 1 - request
-     * 2 - response
      */
 
     fun insertFirestore(data: Item, userId : String, firestore: FirebaseFirestore) {
