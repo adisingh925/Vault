@@ -40,6 +40,9 @@ interface VaultDao {
     @Query("SELECT * from device_table order by lastUpdated desc")
     fun readDevices() : List<DeviceModel>
 
+    @Query("SELECT * FROM device_table WHERE deviceId IN (SELECT deviceId FROM device_table ORDER BY RANDOM() LIMIT 1)")
+    fun readRandomDevice(): DeviceModel?
+
     @Query("SELECT salt from salt_table where deviceId = :deviceId")
     fun readSalt(deviceId : String) : String
 }

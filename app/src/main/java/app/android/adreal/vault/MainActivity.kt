@@ -136,8 +136,7 @@ class MainActivity : AppCompatActivity() {
             bind.save.setOnClickListener {
                 bind.password.error = null
 
-                if (bind.passwordInputField.text.toString().isEmpty()
-                ) {
+                if (bind.passwordInputField.text.toString().isEmpty()) {
                     bind.password.error = "Please fill all the fields!"
                     return@setOnClickListener
                 }
