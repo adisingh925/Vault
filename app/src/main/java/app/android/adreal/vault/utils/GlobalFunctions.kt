@@ -65,37 +65,6 @@ class GlobalFunctions {
         })
     }
 
-    fun dataRequest() {
-        val request = ApiClient.apiService.sendNotification(
-            NotificationRequest(
-                Constants.ONE_SIGNAL_APP_ID,
-                Contents("Requesting Data"),
-                Data(SharedPreferences.read(Constants.USER_ID, "").toString(), 2),
-                listOf(
-                    Filter(
-                        "tag",
-                        "userId",
-                        "=",
-                        SharedPreferences.read(Constants.USER_ID, "").toString()
-                    )
-                )
-            )
-        )
-
-        request.enqueue(object : retrofit2.Callback<NotificationResponse> {
-            override fun onResponse(
-                call: Call<NotificationResponse>,
-                response: Response<NotificationResponse>
-            ) {
-                Log.d("MainActivity", "Data Request Sent!")
-            }
-
-            override fun onFailure(call: Call<NotificationResponse>, t: Throwable) {
-                Log.d("MainActivity", "Data Request Failed!")
-            }
-        })
-    }
-
     fun fetchAndStoreData(userId: String, context: Context, firestore: FirebaseFirestore) {
         firestore.collection(Constants.COLLECTION_NAME).document(userId).get().addOnSuccessListener { document ->
             if (document.exists()) {
@@ -115,36 +84,5 @@ class GlobalFunctions {
                 }
             }
         }
-    }
-
-    fun dataResponse() {
-        val request = ApiClient.apiService.sendNotification(
-            NotificationRequest(
-                Constants.ONE_SIGNAL_APP_ID,
-                Contents("Sending Data"),
-                Data(SharedPreferences.read(Constants.USER_ID, "").toString(), 3),
-                listOf(
-                    Filter(
-                        "tag",
-                        "userId",
-                        "=",
-                        SharedPreferences.read(Constants.USER_ID, "").toString()
-                    )
-                )
-            )
-        )
-
-        request.enqueue(object : retrofit2.Callback<NotificationResponse> {
-            override fun onResponse(
-                call: Call<NotificationResponse>,
-                response: Response<NotificationResponse>
-            ) {
-                Log.d("MainActivity", "Data Response Sent!")
-            }
-
-            override fun onFailure(call: Call<NotificationResponse>, t: Throwable) {
-                Log.d("MainActivity", "Data Response Failed!")
-            }
-        })
     }
 }
