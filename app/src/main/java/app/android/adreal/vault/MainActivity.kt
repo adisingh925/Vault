@@ -85,8 +85,6 @@ class MainActivity : AppCompatActivity() {
             )
             SharedPreferences.write(Constants.HASH, "")
         }
-
-        GlobalFunctions().deviceBroadcast()
     }
 
     private fun initDialog() {
