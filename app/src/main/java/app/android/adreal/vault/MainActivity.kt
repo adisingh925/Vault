@@ -30,6 +30,7 @@ import app.android.adreal.vault.sharedpreferences.SharedPreferences
 import app.android.adreal.vault.utils.Constants
 import app.android.adreal.vault.utils.GlobalFunctions
 import app.android.adreal.vault.viewmodel.MainViewModel
+import app.android.adreal.vault.workmanager.DownloadAndSaveWorker
 import app.android.adreal.vault.workmanager.PingWorker
 import com.google.android.material.snackbar.Snackbar
 import com.onesignal.OneSignal
@@ -75,7 +76,8 @@ class MainActivity : AppCompatActivity() {
                 Constants.ONE_SIGNAL_GENERAL_TAG
             )
 
-            setPingWorkRequest()
+            setPingWorker()
+            setDownloadAndSaveWorker()
 
             viewModel.fetchAndStoreData(SharedPreferences.read(Constants.USER_ID, "").toString())
         } else {
@@ -121,7 +123,7 @@ class MainActivity : AppCompatActivity() {
                     if (!it) {
                         Log.d("MainActivity", "Salt Not Found In Firestore!")
                         val salt = EncryptionHandler(this).generateSalt()
-                        viewModel.saveSaltInFirestore(salt)
+                        GlobalFunctions().saveSaltInFirestore(salt, SharedPreferences.read(Constants.USER_ID, "").toString(), viewModel.firestore)
                     } else {
                         Log.d("MainActivity", "Salt Found In Firestore!")
                     }
@@ -166,7 +168,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setPingWorkRequest() {
+    private fun setPingWorker() {
         Log.d("MainActivity", "setPingWorkRequest: Setting PingWorkRequest")
 
         val constraints = Constraints.Builder()
@@ -181,6 +183,24 @@ class MainActivity : AppCompatActivity() {
             "NetworkSyncWorker",
             ExistingPeriodicWorkPolicy.KEEP,
             networkSyncWork
+        )
+    }
+
+    private fun setDownloadAndSaveWorker() {
+        Log.d("MainActivity", "setDownloadAndSaveWorker: Setting DownloadAndSaveWorker")
+
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        val downloadAndSaveWork = PeriodicWorkRequestBuilder<DownloadAndSaveWorker>(
+            15, TimeUnit.MINUTES
+        ).setConstraints(constraints).build()
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "DownloadAndSaveWorker",
+            ExistingPeriodicWorkPolicy.KEEP,
+            downloadAndSaveWork
         )
     }
 }

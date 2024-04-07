@@ -9,6 +9,7 @@ import app.android.adreal.vault.model.Item
 import app.android.adreal.vault.model.SaltModel
 import app.android.adreal.vault.sharedpreferences.SharedPreferences
 import app.android.adreal.vault.utils.Constants
+import app.android.adreal.vault.utils.GlobalFunctions
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import com.google.gson.Gson
@@ -32,43 +33,27 @@ class NotificationServiceExtension : INotificationServiceExtension {
             val data = Gson().fromJson(notification.additionalData.toString(), Data::class.java)
 
             if (data.type == 0) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    Database
-                        .getDatabase(event.context)
-                        .dao()
-                        .insertDeviceWithReplace(
+                if(data.deviceId == SharedPreferences.read(Constants.USER_ID, "")){
+                    Log.d("NotificationServiceExtension", "Ignoring the device broadcast")
+                }else{
+                    CoroutineScope(Dispatchers.IO).launch {
+                        Database.getDatabase(event.context).dao().insertDeviceWithReplace(
                             DeviceModel(
                                 data.deviceId,
                                 System.currentTimeMillis()
                             )
                         )
-                }
-            } else if (data.type == 1) {
-                fetchAndStoreData(data.deviceId, event.context)
-            }
-        }
-    }
-
-    private fun fetchAndStoreData(userId: String, context: Context) {
-        firestore.collection(Constants.COLLECTION_NAME).document(userId).get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    val encryptedNotesMap = document.data
-                    encryptedNotesMap?.forEach { (key, value) ->
-                        if (key == Constants.SALT) {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                Database.getDatabase(context).dao()
-                                    .insertSalt(SaltModel(userId, value.toString()))
-                            }
-                        } else {
-                            val decryptedItem = Gson().fromJson(value.toString(), Item::class.java)
-
-                            CoroutineScope(Dispatchers.IO).launch {
-                                Database.getDatabase(context).dao().insertWithReplace(decryptedItem)
-                            }
-                        }
                     }
                 }
+            } else if (data.type == 1) {
+                //upload data back to firestore for the requested device
+                CoroutineScope(Dispatchers.IO).launch {
+                    val deviceData = Database.getDatabase(event.context).dao().read(data.deviceId)
+                    val salt = Database.getDatabase(event.context).dao().readSalt(data.deviceId)
+
+
+                }
             }
+        }
     }
 }

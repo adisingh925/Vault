@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     val repository: Repository
-    private val firestore = Firebase.firestore
+    val firestore = Firebase.firestore
     val salt = MutableLiveData<Boolean>()
 
     val decryptedNotes: LiveData<List<Item>>
@@ -74,7 +74,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             repository.insert(data)
 
             if (updateFirestore) {
-                insertFirestore(data)
+                GlobalFunctions().insertFirestore(data,SharedPreferences.read(Constants.USER_ID, "").toString(), firestore)
             }
         }
     }
@@ -93,13 +93,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun insertFirestore(data: Item) {
-        val userId = SharedPreferences.read(Constants.USER_ID, "").toString()
-        val encryptedNotes = Gson().toJson(data)
-        val encryptedNotesMap = mapOf(data.id.toString() to encryptedNotes)
-        firestore.collection(Constants.COLLECTION_NAME).document(userId).set(encryptedNotesMap, SetOptions.merge())
-    }
-
     private fun updateFirestore(data: Item) {
         val userId = SharedPreferences.read(Constants.USER_ID, "").toString()
         val encryptedNotes = Gson().toJson(data)
@@ -111,12 +104,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val userId = SharedPreferences.read(Constants.USER_ID, "").toString()
         val updates = hashMapOf<String, Any>(data.id.toString() to FieldValue.delete())
         firestore.collection(Constants.COLLECTION_NAME).document(userId).update(updates)
-    }
-
-    fun saveSaltInFirestore(salt: String) {
-        val userId = SharedPreferences.read(Constants.USER_ID, "").toString()
-        val saltMap = mapOf(Constants.SALT to salt)
-        firestore.collection(Constants.COLLECTION_NAME).document(userId).set(saltMap, SetOptions.merge())
     }
 
     fun fetchAndStoreData(userId: String) {
