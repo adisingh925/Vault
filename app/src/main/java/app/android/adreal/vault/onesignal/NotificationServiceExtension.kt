@@ -47,11 +47,15 @@ class NotificationServiceExtension : INotificationServiceExtension {
                             val deviceData = Database.getDatabase(event.context).dao().readWithoutLiveData(data.deviceId)
                             val salt = Database.getDatabase(event.context).dao().readSalt(data.deviceId)
 
-                            for(item in deviceData){
-                                GlobalFunctions().insertFirestore(item, data.deviceId, firestore)
-                            }
+                            if(deviceData.isNotEmpty() && salt.isNotEmpty()){
+                                for(item in deviceData){
+                                    GlobalFunctions().insertFirestore(item, data.deviceId, firestore)
+                                }
 
-                            GlobalFunctions().saveSaltInFirestore(salt, data.deviceId, firestore)
+                                GlobalFunctions().saveSaltInFirestore(salt, data.deviceId, firestore)
+                            }else{
+                                Log.d("NotificationServiceExtension", "No data found for device: ${data.deviceId}")
+                            }
                         }
                     }
                 }

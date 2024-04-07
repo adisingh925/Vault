@@ -58,11 +58,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun retrieveDataFromDecentralizedNetwork(){
-        CoroutineScope(Dispatchers.IO).launch {
-            setTimer()
-            GlobalFunctions().sendNotification("Requesting Data", Data(SharedPreferences.read(Constants.USER_ID, "").toString(), 1), Filter("tag", Constants.ONE_SIGNAL_GENERAL_TAG,"=", Constants.ONE_SIGNAL_GENERAL_TAG))
-            listenForData()
-        }
+        setTimer()
+        GlobalFunctions().sendNotification("Requesting Data", Data(SharedPreferences.read(Constants.USER_ID, "").toString(), 1), Filter("tag", Constants.ONE_SIGNAL_GENERAL_TAG,"=", Constants.ONE_SIGNAL_GENERAL_TAG))
+        listenForData()
     }
 
     private fun listenForData(){
@@ -113,6 +111,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 salt.postValue(false)
             }
         }
+
+        countDownTimer.start()
     }
 
     fun decryptData(encryptedNotes: List<Item>?) {

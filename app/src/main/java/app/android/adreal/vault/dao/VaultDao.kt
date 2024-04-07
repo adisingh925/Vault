@@ -1,6 +1,5 @@
 package app.android.adreal.vault.dao
 
-import android.bluetooth.BluetoothClass.Device
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
