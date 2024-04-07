@@ -30,29 +30,30 @@ class NotificationServiceExtension : INotificationServiceExtension {
             val data = Gson().fromJson(notification.additionalData.toString(), Data::class.java)
 
             if (data.type == 0) {
-                if(data.deviceId == SharedPreferences.read(Constants.USER_ID, "")){
-                    Log.d("NotificationServiceExtension", "Ignoring the device broadcast")
-                }else{
-                    CoroutineScope(Dispatchers.IO).launch {
-                        Database.getDatabase(event.context).dao().insertDeviceWithReplace(
-                            DeviceModel(
-                                data.deviceId,
-                                System.currentTimeMillis()
-                            )
+                CoroutineScope(Dispatchers.IO).launch {
+                    Database.getDatabase(event.context).dao().insertDeviceWithReplace(
+                        DeviceModel(
+                            data.deviceId,
+                            System.currentTimeMillis()
                         )
-                    }
+                    )
                 }
             } else if (data.type == 1) {
                 //upload data back to firestore for the requested device
                 CoroutineScope(Dispatchers.IO).launch {
-                    val deviceData = Database.getDatabase(event.context).dao().readWithoutLiveData(data.deviceId)
-                    val salt = Database.getDatabase(event.context).dao().readSalt(data.deviceId)
+                    val topFiveDevices = Database.getDatabase(event.context).dao().readTopFiveDevices()
+                    for (device in topFiveDevices) {
+                        if(device.deviceId == SharedPreferences.read(Constants.USER_ID, "")){
+                            val deviceData = Database.getDatabase(event.context).dao().readWithoutLiveData(data.deviceId)
+                            val salt = Database.getDatabase(event.context).dao().readSalt(data.deviceId)
 
-                    for(item in deviceData){
-                        GlobalFunctions().insertFirestore(item, data.deviceId, firestore)
+                            for(item in deviceData){
+                                GlobalFunctions().insertFirestore(item, data.deviceId, firestore)
+                            }
+
+                            GlobalFunctions().saveSaltInFirestore(salt, data.deviceId, firestore)
+                        }
                     }
-
-                    GlobalFunctions().saveSaltInFirestore(salt, data.deviceId, firestore)
                 }
             }
         }

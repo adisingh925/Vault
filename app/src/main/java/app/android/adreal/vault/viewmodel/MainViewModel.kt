@@ -59,15 +59,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun retrieveDataFromDecentralizedNetwork(){
         CoroutineScope(Dispatchers.IO).launch {
-            val entry = Database.getDatabase(getApplication()).dao().readRandomDevice()
-            if(entry != null){
-                setTimer()
-                GlobalFunctions().sendNotification("Requesting Data", Data(SharedPreferences.read(Constants.USER_ID, "").toString(), 1), Filter("tag", "userId","=", entry.deviceId))
-                listenForData()
-            }else{
-                salt.postValue(false)
-                Log.d("MainViewModel", "No Device Found!")
-            }
+            setTimer()
+            GlobalFunctions().sendNotification("Requesting Data", Data(SharedPreferences.read(Constants.USER_ID, "").toString(), 1), Filter("tag", Constants.ONE_SIGNAL_GENERAL_TAG,"=", Constants.ONE_SIGNAL_GENERAL_TAG))
+            listenForData()
         }
     }
 
