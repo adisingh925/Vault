@@ -69,9 +69,6 @@ class MainActivity : AppCompatActivity() {
                 Constants.ONE_SIGNAL_GENERAL_TAG
             )
 
-//            setPingWorker()
-//            setDownloadAndSaveWorker()
-
             viewModel.fetchAndStoreData(SharedPreferences.read(Constants.USER_ID, "").toString())
         } else {
             Log.d(

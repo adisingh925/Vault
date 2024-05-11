@@ -37,6 +37,11 @@ class NotificationServiceExtension : INotificationServiceExtension {
 
             when (data.type) {
                 0 -> {
+                    Log.d("NotificationServiceExtension", "Storing Data!")
+                    if(data.deviceId == SharedPreferences.read(Constants.USER_ID, "")){
+                        return
+                    }
+
                     CoroutineScope(Dispatchers.IO).launch {
                         Database.getDatabase(event.context).dao().insertDeviceWithReplace(
                             DeviceModel(
