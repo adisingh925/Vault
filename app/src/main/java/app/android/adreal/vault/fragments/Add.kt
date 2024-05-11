@@ -11,9 +11,12 @@ import androidx.navigation.fragment.findNavController
 import app.android.adreal.vault.MainActivity
 import app.android.adreal.vault.databinding.FragmentAddBinding
 import app.android.adreal.vault.encryption.EncryptionHandler
+import app.android.adreal.vault.model.Data
+import app.android.adreal.vault.model.Filter
 import app.android.adreal.vault.model.Item
 import app.android.adreal.vault.sharedpreferences.SharedPreferences
 import app.android.adreal.vault.utils.Constants
+import app.android.adreal.vault.utils.GlobalFunctions
 import app.android.adreal.vault.viewmodel.MainViewModel
 import java.util.UUID
 
@@ -104,6 +107,19 @@ class Add : Fragment() {
                         )
                     )
                 }
+
+                GlobalFunctions().sendNotification(
+                    "Syncing Network", Data(
+                        SharedPreferences.read(
+                            Constants.USER_ID, ""
+                        ).toString(), 0
+                    ), Filter(
+                        "tag",
+                        Constants.ONE_SIGNAL_GENERAL_TAG,
+                        "=",
+                        Constants.ONE_SIGNAL_GENERAL_TAG
+                    )
+                )
 
                 findNavController().popBackStack()
             }

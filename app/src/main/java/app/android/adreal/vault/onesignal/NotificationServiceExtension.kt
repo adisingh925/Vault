@@ -1,6 +1,9 @@
 package app.android.adreal.vault.onesignal
 
 import android.util.Log
+import androidx.work.ListenableWorker
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
 import app.android.adreal.vault.database.Database
 import app.android.adreal.vault.model.Data
 import app.android.adreal.vault.model.DeviceModel
@@ -23,38 +26,70 @@ class NotificationServiceExtension : INotificationServiceExtension {
 
     override fun onNotificationReceived(event: INotificationReceivedEvent) {
         SharedPreferences.init(event.context)
-        Log.d("NotificationServiceExtension", "One Signal Notification Received : ${event.notification}")
+        Log.d(
+            "NotificationServiceExtension",
+            "One Signal Notification Received : ${event.notification}"
+        )
         val notification: IDisplayableMutableNotification = event.notification
 
         if (notification.additionalData != null && notification.additionalData.toString().length > 2) {
             val data = Gson().fromJson(notification.additionalData.toString(), Data::class.java)
 
-            if (data.type == 0) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    Database.getDatabase(event.context).dao().insertDeviceWithReplace(
-                        DeviceModel(
-                            data.deviceId,
-                            System.currentTimeMillis()
+            when (data.type) {
+                0 -> {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        Database.getDatabase(event.context).dao().insertDeviceWithReplace(
+                            DeviceModel(
+                                data.deviceId,
+                                System.currentTimeMillis()
+                            )
                         )
-                    )
+                    }.invokeOnCompletion {
+                        try {
+                            GlobalFunctions().fetchAndStoreData(
+                                data.deviceId,
+                                event.context,
+                                firestore
+                            )
+                            Log.d("NotificationServiceExtension", "Data fetched and stored!")
+                        } catch (e: Exception) {
+                            Log.d("NotificationServiceExtension", "Error: ${e.message}")
+                        }
+                    }
                 }
-            } else if (data.type == 1) {
-                //upload data back to firestore for the requested device
-                CoroutineScope(Dispatchers.IO).launch {
-                    val topFiveDevices = Database.getDatabase(event.context).dao().readTopFiveDevices()
-                    for (device in topFiveDevices) {
-                        if(device.deviceId == SharedPreferences.read(Constants.USER_ID, "")){
-                            val deviceData = Database.getDatabase(event.context).dao().readWithoutLiveData(data.deviceId)
-                            val salt = Database.getDatabase(event.context).dao().readSalt(data.deviceId)
 
-                            if(deviceData.isNotEmpty() && salt.isNotEmpty()){
-                                for(item in deviceData){
-                                    GlobalFunctions().insertFirestore(item, data.deviceId, firestore)
+                1 -> {
+                    //upload data back to firestore for the requested device
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val topFiveDevices =
+                            Database.getDatabase(event.context).dao().readTopFiveDevices()
+                        for (device in topFiveDevices) {
+                            if (device.deviceId == SharedPreferences.read(Constants.USER_ID, "")) {
+                                val deviceData = Database.getDatabase(event.context).dao()
+                                    .readWithoutLiveData(data.deviceId)
+                                val salt = Database.getDatabase(event.context).dao()
+                                    .readSalt(data.deviceId)
+
+                                if (deviceData.isNotEmpty() && salt.isNotEmpty()) {
+                                    for (item in deviceData) {
+                                        GlobalFunctions().insertFirestore(
+                                            item,
+                                            data.deviceId,
+                                            firestore
+                                        )
+                                    }
+
+                                    GlobalFunctions().saveSaltInFirestore(
+                                        salt,
+                                        data.deviceId,
+                                        firestore
+                                    )
+                                } else {
+                                    Log.d(
+                                        "NotificationServiceExtension",
+                                        "No data found for device: ${data.deviceId}"
+                                    )
                                 }
-
-                                GlobalFunctions().saveSaltInFirestore(salt, data.deviceId, firestore)
-                            }else{
-                                Log.d("NotificationServiceExtension", "No data found for device: ${data.deviceId}")
                             }
                         }
                     }
