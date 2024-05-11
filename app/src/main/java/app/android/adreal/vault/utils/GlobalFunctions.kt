@@ -34,7 +34,7 @@ class GlobalFunctions {
         firestore.collection(Constants.COLLECTION_NAME).document(userId).set(encryptedNotesMap, SetOptions.merge()).addOnSuccessListener {
             Log.d("GlobalFunctions", "Data Inserted Successfully")
             GlobalFunctions().sendNotification(
-                "Syncing Network", Data(
+                "Syncing Network - Inserting Data", Data(
                     SharedPreferences.read(
                         Constants.USER_ID, ""
                     ).toString(), 0
@@ -55,7 +55,7 @@ class GlobalFunctions {
         firestore.collection(Constants.COLLECTION_NAME).document(userId).set(saltMap, SetOptions.merge()).addOnSuccessListener {
             Log.d("GlobalFunctions", "Salt Inserted Successfully")
             GlobalFunctions().sendNotification(
-                "Syncing Network", Data(
+                "Syncing Network - Storing Salt", Data(
                     SharedPreferences.read(
                         Constants.USER_ID, ""
                     ).toString(), 0

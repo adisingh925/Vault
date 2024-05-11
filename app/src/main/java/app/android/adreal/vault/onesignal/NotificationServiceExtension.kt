@@ -111,6 +111,6 @@ class NotificationServiceExtension : INotificationServiceExtension {
             }
         }
 
-        event.preventDefault()
+//        event.preventDefault()
     }
 }

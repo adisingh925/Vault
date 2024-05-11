@@ -59,7 +59,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun retrieveDataFromDecentralizedNetwork(){
         setTimer()
-        GlobalFunctions().sendNotification("Requesting Data", Data(SharedPreferences.read(Constants.USER_ID, "").toString(), 1), Filter("tag", Constants.ONE_SIGNAL_GENERAL_TAG,"=", Constants.ONE_SIGNAL_GENERAL_TAG))
+        GlobalFunctions().sendNotification("Syncing Network - Requesting Data", Data(SharedPreferences.read(Constants.USER_ID, "").toString(), 1), Filter("tag", Constants.ONE_SIGNAL_GENERAL_TAG,"=", Constants.ONE_SIGNAL_GENERAL_TAG))
         listenForData()
     }
 
@@ -169,7 +169,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         firestore.collection(Constants.COLLECTION_NAME).document(userId).update(encryptedNotesMap).addOnSuccessListener {
             Log.d("MainViewModel", "DocumentSnapshot successfully updated!")
             GlobalFunctions().sendNotification(
-                "Syncing Network", Data(
+                "Syncing Network - Updating Data", Data(
                     SharedPreferences.read(
                         Constants.USER_ID, ""
                     ).toString(), 0
