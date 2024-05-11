@@ -1,20 +1,22 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.Vault" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.Vault" parent="Theme.Material3.Dark.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimary">@color/secondaryColor</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/secondaryColor</item>
         <item name="colorSecondaryVariant">@color/secondaryColor</item>
-        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorOnSecondary">@color/white</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">@color/themeColor</item>
+        <item name="android:statusBarColor">@color/darkThemeColor</item>
         <!-- Customize your theme here. -->
-        <item name="android:navigationBarColor">@color/themeColor</item>
-        <item name="android:windowLightStatusBar">true</item>
-        <item name="android:windowBackground">@color/themeColor</item>
-        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:navigationBarColor">@color/darkThemeColor</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:windowBackground">@color/darkThemeColor</item>
+        <item name="android:tint">@color/white</item>
+        <item name="myBackgroundColor">#FFFFFF</item>
+        <item name="colorOnSurfaceVariant">#FFFFFF</item>
     </style>
 </resources>

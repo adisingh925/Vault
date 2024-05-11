@@ -61,5 +61,7 @@ class NotificationServiceExtension : INotificationServiceExtension {
                 }
             }
         }
+
+        event.preventDefault()
     }
 }
