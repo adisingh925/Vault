@@ -1,7 +1,6 @@
 package app.android.adreal.vault
 
 import android.app.Dialog
-import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -10,22 +9,16 @@ import android.util.Log
 import android.view.Window
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import app.android.adreal.vault.databinding.ActivityMainBinding
 import app.android.adreal.vault.databinding.CreatePasswordDialogBinding
 import app.android.adreal.vault.encryption.EncryptionHandler
-import app.android.adreal.vault.model.Contents
-import app.android.adreal.vault.model.Data
-import app.android.adreal.vault.model.Filter
-import app.android.adreal.vault.model.NotificationRequest
-import app.android.adreal.vault.model.NotificationResponse
-import app.android.adreal.vault.retrofit.ApiClient
 import app.android.adreal.vault.sharedpreferences.SharedPreferences
 import app.android.adreal.vault.utils.Constants
 import app.android.adreal.vault.utils.GlobalFunctions
@@ -34,8 +27,6 @@ import app.android.adreal.vault.workmanager.DownloadAndSaveWorker
 import app.android.adreal.vault.workmanager.PingWorker
 import com.google.android.material.snackbar.Snackbar
 import com.onesignal.OneSignal
-import retrofit2.Call
-import retrofit2.Response
 import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
@@ -51,6 +42,8 @@ class MainActivity : AppCompatActivity() {
     private val dialog by lazy {
         Dialog(this)
     }
+
+    val state = MutableLiveData<Boolean>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -142,8 +135,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 EncryptionHandler(this).generateAESKeyFromPassword(bind.passwordInputField.text.toString())
-                val intent = Intent(Constants.DECRYPT)
-                this.sendBroadcast(intent)
+                state.postValue(true)
                 dialog.dismiss()
             }
 
@@ -155,8 +147,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        val intent = Intent(Constants.ENCRYPT)
-        this.sendBroadcast(intent)
+        Log.d("MainActivity", "onPause: Encrypting Data!")
+        state.postValue(false)
         SharedPreferences.write(Constants.HASH, "")
     }
 
