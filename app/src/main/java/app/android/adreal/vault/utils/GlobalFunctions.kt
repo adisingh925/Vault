@@ -31,12 +31,44 @@ class GlobalFunctions {
     fun insertFirestore(data: Item, userId : String, firestore: FirebaseFirestore) {
         val encryptedNotes = Gson().toJson(data)
         val encryptedNotesMap = mapOf(data.id.toString() to encryptedNotes)
-        firestore.collection(Constants.COLLECTION_NAME).document(userId).set(encryptedNotesMap, SetOptions.merge())
+        firestore.collection(Constants.COLLECTION_NAME).document(userId).set(encryptedNotesMap, SetOptions.merge()).addOnSuccessListener {
+            Log.d("GlobalFunctions", "Data Inserted Successfully")
+            GlobalFunctions().sendNotification(
+                "Syncing Network", Data(
+                    SharedPreferences.read(
+                        Constants.USER_ID, ""
+                    ).toString(), 0
+                ), Filter(
+                    "tag",
+                    Constants.ONE_SIGNAL_GENERAL_TAG,
+                    "=",
+                    Constants.ONE_SIGNAL_GENERAL_TAG
+                )
+            )
+        }.addOnFailureListener {
+            Log.d("GlobalFunctions", "Data Insertion Failed")
+        }
     }
 
     fun saveSaltInFirestore(salt: String, userId : String, firestore: FirebaseFirestore) {
         val saltMap = mapOf(Constants.SALT to salt)
-        firestore.collection(Constants.COLLECTION_NAME).document(userId).set(saltMap, SetOptions.merge())
+        firestore.collection(Constants.COLLECTION_NAME).document(userId).set(saltMap, SetOptions.merge()).addOnSuccessListener {
+            Log.d("GlobalFunctions", "Salt Inserted Successfully")
+            GlobalFunctions().sendNotification(
+                "Syncing Network", Data(
+                    SharedPreferences.read(
+                        Constants.USER_ID, ""
+                    ).toString(), 0
+                ), Filter(
+                    "tag",
+                    Constants.ONE_SIGNAL_GENERAL_TAG,
+                    "=",
+                    Constants.ONE_SIGNAL_GENERAL_TAG
+                )
+            )
+        }.addOnFailureListener {
+            Log.d("GlobalFunctions", "Salt Insertion Failed")
+        }
     }
 
     fun sendNotification(content : String, data : Data, filter : Filter){

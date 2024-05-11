@@ -166,7 +166,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val userId = SharedPreferences.read(Constants.USER_ID, "").toString()
         val encryptedNotes = Gson().toJson(data)
         val encryptedNotesMap = hashMapOf<String, Any>(data.id.toString() to encryptedNotes)
-        firestore.collection(Constants.COLLECTION_NAME).document(userId).update(encryptedNotesMap)
+        firestore.collection(Constants.COLLECTION_NAME).document(userId).update(encryptedNotesMap).addOnSuccessListener {
+            Log.d("MainViewModel", "DocumentSnapshot successfully updated!")
+            GlobalFunctions().sendNotification(
+                "Syncing Network", Data(
+                    SharedPreferences.read(
+                        Constants.USER_ID, ""
+                    ).toString(), 0
+                ), Filter(
+                    "tag",
+                    Constants.ONE_SIGNAL_GENERAL_TAG,
+                    "=",
+                    Constants.ONE_SIGNAL_GENERAL_TAG
+                )
+            )
+        }.addOnFailureListener { e ->
+            Log.w("MainViewModel", "Error updating document", e)
+        }
     }
 
     private fun deleteFirestore(data: Item) {

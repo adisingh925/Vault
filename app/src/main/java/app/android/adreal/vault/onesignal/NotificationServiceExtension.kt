@@ -61,36 +61,45 @@ class NotificationServiceExtension : INotificationServiceExtension {
                 1 -> {
                     //upload data back to firestore for the requested device
                     CoroutineScope(Dispatchers.IO).launch {
-                        val topFiveDevices =
-                            Database.getDatabase(event.context).dao().readTopFiveDevices()
-                        for (device in topFiveDevices) {
-                            if (device.deviceId == SharedPreferences.read(Constants.USER_ID, "")) {
-                                val deviceData = Database.getDatabase(event.context).dao()
-                                    .readWithoutLiveData(data.deviceId)
-                                val salt = Database.getDatabase(event.context).dao()
-                                    .readSalt(data.deviceId)
+                        try {
+                            Log.d("NotificationServiceExtension", "Uploading data to firestore")
+                            val topFiveDevices = Database.getDatabase(event.context).dao().readTopFiveDevices()
+                            for (device in topFiveDevices) {
+                                if (device.deviceId == SharedPreferences.read(Constants.USER_ID, "")) {
+                                    Log.d("NotificationServiceExtension", "Device found!")
+                                    val deviceData = Database.getDatabase(event.context).dao()
+                                        .readWithoutLiveData(data.deviceId)
+                                    val salt = Database.getDatabase(event.context).dao()
+                                        .readSalt(data.deviceId)
 
-                                if (deviceData.isNotEmpty() && salt.isNotEmpty()) {
-                                    for (item in deviceData) {
-                                        GlobalFunctions().insertFirestore(
-                                            item,
+                                    if (deviceData.isNotEmpty() && salt.isNotEmpty()) {
+                                        Log.d(
+                                            "NotificationServiceExtension",
+                                            "Data found!")
+
+                                        for (item in deviceData) {
+                                            GlobalFunctions().insertFirestore(
+                                                item,
+                                                data.deviceId,
+                                                firestore
+                                            )
+                                        }
+
+                                        GlobalFunctions().saveSaltInFirestore(
+                                            salt,
                                             data.deviceId,
                                             firestore
                                         )
+                                    } else {
+                                        Log.d(
+                                            "NotificationServiceExtension",
+                                            "No data found for device: ${data.deviceId}"
+                                        )
                                     }
-
-                                    GlobalFunctions().saveSaltInFirestore(
-                                        salt,
-                                        data.deviceId,
-                                        firestore
-                                    )
-                                } else {
-                                    Log.d(
-                                        "NotificationServiceExtension",
-                                        "No data found for device: ${data.deviceId}"
-                                    )
                                 }
                             }
+                        }catch (e: Exception) {
+                            Log.d("NotificationServiceExtension", "Error: ${e.message}")
                         }
                     }
                 }

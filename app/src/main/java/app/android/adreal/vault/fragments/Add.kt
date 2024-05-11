@@ -108,19 +108,6 @@ class Add : Fragment() {
                     )
                 }
 
-                GlobalFunctions().sendNotification(
-                    "Syncing Network", Data(
-                        SharedPreferences.read(
-                            Constants.USER_ID, ""
-                        ).toString(), 0
-                    ), Filter(
-                        "tag",
-                        Constants.ONE_SIGNAL_GENERAL_TAG,
-                        "=",
-                        Constants.ONE_SIGNAL_GENERAL_TAG
-                    )
-                )
-
                 findNavController().popBackStack()
             }
         }
